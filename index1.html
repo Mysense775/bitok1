@@ -6,33 +6,22 @@
     <title>Биткоин Прогноз</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --primary-color: #ff9900;
-            --primary-gradient: linear-gradient(135deg, #ff9900 0%, #ff6b00 100%);
             --secondary-color: #1698d9;
-            --secondary-gradient: linear-gradient(135deg, #1698d9 0%, #0d7cb5 100%);
             --success-color: #4CAF50;
-            --success-gradient: linear-gradient(135deg, #4CAF50 0%, #3d8b40 100%);
             --danger-color: #F44336;
-            --danger-gradient: linear-gradient(135deg, #F44336 0%, #d32f2f 100%);
-            --dark-bg: #121212;
-            --darker-bg: #0a0a0a;
-            --card-bg: rgba(30, 30, 46, 0.6);
-            --card-border: rgba(255, 255, 255, 0.1);
+            --dark-bg: #1a1a2e;
+            --darker-bg: #16213e;
             --text-color: #ffffff;
-            --text-secondary: #a0a0b0;
-            --text-tertiary: #6c6c7c;
+            --text-secondary: #cccccc;
+            --card-bg: rgba(0, 0, 0, 0.3);
+            --card-border: rgba(255, 255, 255, 0.1);
             --safe-area-inset-top: env(safe-area-inset-top, 0px);
             --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
             --safe-area-inset-left: env(safe-area-inset-left, 0px);
             --safe-area-inset-right: env(safe-area-inset-right, 0px);
-            --border-radius: 16px;
-            --border-radius-sm: 12px;
-            --border-radius-lg: 20px;
-            --shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-            --transition: all 0.3s ease;
         }
 
         * {
@@ -41,28 +30,25 @@
             -webkit-touch-callout: none;
             -webkit-user-select: none;
             user-select: none;
-            margin: 0;
-            padding: 0;
         }
 
         body {
-            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Oxygen, Ubuntu, sans-serif;
-            background: var(--dark-bg);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, var(--darker-bg) 100%);
             color: var(--text-color);
             min-height: 100vh;
             padding: var(--safe-area-inset-top) var(--safe-area-inset-right) var(--safe-area-inset-bottom) var(--safe-area-inset-left);
             overflow-x: hidden;
-            line-height: 1.5;
-            background-image: 
-                radial-gradient(circle at 15% 50%, rgba(255, 153, 0, 0.03) 0%, transparent 25%),
-                radial-gradient(circle at 85% 30%, rgba(22, 152, 217, 0.03) 0%, transparent 25%);
+            line-height: 1.4;
         }
 
         .container {
             max-width: 100%;
             margin: 0 auto;
-            padding: 16px;
-            padding-bottom: calc(16px + var(--safe-area-inset-bottom));
+            padding: 12px;
+            padding-bottom: calc(12px + var(--safe-area-inset-bottom));
         }
 
         /* Header */
@@ -70,11 +56,11 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             padding: 12px 0;
             position: sticky;
             top: var(--safe-area-inset-top);
-            background: rgba(18, 18, 18, 0.9);
+            background: linear-gradient(135deg, var(--dark-bg) 0%, var(--darker-bg) 100%);
             z-index: 100;
             backdrop-filter: blur(10px);
         }
@@ -82,50 +68,39 @@
         .logo {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
         .logo-icon {
-            width: 42px;
-            height: 42px;
+            font-size: 24px;
+            color: var(--primary-color);
+            width: 40px;
+            height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: var(--primary-gradient);
+            background: rgba(255, 153, 0, 0.1);
             border-radius: 50%;
-            font-size: 20px;
-            color: white;
-            box-shadow: 0 4px 12px rgba(255, 153, 0, 0.3);
         }
 
         .logo-text {
-            font-size: 20px;
-            font-weight: 800;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary-color);
         }
 
         .user-info {
             display: flex;
             align-items: center;
-            gap: 10px;
-            background: var(--card-bg);
-            padding: 10px 16px;
-            border-radius: 100px;
-            border: 1px solid var(--card-border);
-            backdrop-filter: blur(10px);
-            transition: var(--transition);
-        }
-
-        .user-info:active {
-            transform: scale(0.95);
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 12px;
+            border-radius: 20px;
+            min-width: 0;
         }
 
         .user-name {
             font-size: 14px;
-            font-weight: 500;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -133,236 +108,172 @@
         }
 
         .coins {
+            color: gold;
+            font-weight: 700;
             display: flex;
             align-items: center;
-            gap: 6px;
-            font-weight: 700;
-            color: gold;
+            gap: 4px;
             font-size: 14px;
         }
 
         .add-coins-btn {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: var(--primary-gradient);
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: black;
+            padding: 6px 10px;
+            border-radius: 12px;
+            font-size: 12px;
             border: none;
-            color: white;
-            font-weight: bold;
+            font-weight: 700;
+            min-width: 30px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
         }
 
         /* Time Selection */
         .time-selection {
             background: var(--card-bg);
-            padding: 20px;
-            border-radius: var(--border-radius-lg);
-            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 16px;
+            margin-bottom: 15px;
             border: 1px solid var(--card-border);
-            backdrop-filter: blur(10px);
         }
 
         .time-label {
-            font-size: 15px;
+            font-size: 14px;
             color: var(--text-secondary);
-            margin-bottom: 16px;
+            margin-bottom: 12px;
             text-align: center;
-            font-weight: 500;
         }
 
         .time-options {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-bottom: 16px;
+            gap: 10px;
+            margin-bottom: 10px;
         }
 
         .time-option {
-            padding: 14px 10px;
-            border: 1px solid var(--card-border);
-            border-radius: var(--border-radius-sm);
+            padding: 12px 8px;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
             text-align: center;
             cursor: pointer;
-            transition: var(--transition);
-            font-size: 15px;
+            transition: all 0.3s ease;
+            font-size: 14px;
             font-weight: 500;
-            background: rgba(255, 255, 255, 0.03);
         }
 
         .time-option:hover {
-            background: rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.15);
         }
 
         .time-option.active {
             border-color: var(--primary-color);
-            background: rgba(255, 153, 0, 0.15);
+            background: rgba(255, 153, 0, 0.2);
             color: var(--primary-color);
             font-weight: 600;
-            box-shadow: 0 4px 12px rgba(255, 153, 0, 0.2);
         }
 
         .time-option:active {
             transform: scale(0.95);
         }
 
-        .currency-toggle-container {
+        .currency-toggle {
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-top: 16px;
-        }
-
-        .currency-toggle {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 16px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 100px;
+            gap: 8px;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
             cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .currency-toggle:active {
-            transform: scale(0.95);
         }
 
         .toggle-switch {
-            width: 50px;
-            height: 26px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 13px;
+            width: 40px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
             position: relative;
-            transition: var(--transition);
+            transition: all 0.3s ease;
         }
 
         .toggle-switch::before {
             content: '';
             position: absolute;
-            width: 22px;
-            height: 22px;
+            width: 18px;
+            height: 18px;
             background: var(--primary-color);
             border-radius: 50%;
-            top: 2px;
-            left: 2px;
-            transition: var(--transition);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            top: 1px;
+            left: 1px;
+            transition: all 0.3s ease;
         }
 
         .toggle-switch.usd::before {
-            left: 26px;
+            left: 21px;
         }
 
-        /* Price Card */
+        /* Main Game Area */
         .price-card {
             background: var(--card-bg);
-            padding: 24px;
-            border-radius: var(--border-radius-lg);
+            padding: 20px;
+            border-radius: 20px;
             margin-bottom: 20px;
             text-align: center;
-            box-shadow: var(--shadow);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
             border: 1px solid var(--card-border);
-            backdrop-filter: blur(10px);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .price-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: var(--primary-gradient);
         }
 
         .price-label {
             font-size: 14px;
             color: var(--text-secondary);
             margin-bottom: 8px;
-            font-weight: 500;
         }
 
         .current-price {
-            font-size: 40px;
+            font-size: 36px;
             font-weight: 800;
             color: var(--primary-color);
-            margin: 12px 0;
+            margin: 10px 0;
             letter-spacing: -0.5px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            transition: all 0.5s ease;
-        }
-
-        .price-up {
-            color: #4CAF50;
-            animation: priceChangeUp 0.5s ease;
-        }
-
-        .price-down {
-            color: #F44336;
-            animation: priceChangeDown 0.5s ease;
-        }
-
-        @keyframes priceChangeUp {
-            0% { color: var(--primary-color); }
-            50% { color: #4CAF50; transform: scale(1.05); }
-            100% { color: #4CAF50; }
-        }
-
-        @keyframes priceChangeDown {
-            0% { color: var(--primary-color); }
-            50% { color: #F44336; transform: scale(1.05); }
-            100% { color: #F44336; }
         }
 
         .price-change {
             font-size: 14px;
-            padding: 8px 16px;
-            border-radius: 100px;
+            padding: 6px 12px;
+            border-radius: 16px;
             display: inline-block;
-            font-weight: 600;
-            backdrop-filter: blur(10px);
+            font-weight: 500;
         }
 
         .positive {
-            background: rgba(76, 175, 80, 0.2);
+            background-color: rgba(76, 175, 80, 0.2);
             color: #4CAF50;
-            border: 1px solid rgba(76, 175, 80, 0.3);
         }
 
         .negative {
-            background: rgba(244, 67, 54, 0.2);
+            background-color: rgba(244, 67, 54, 0.2);
             color: #F44336;
-            border: 1px solid rgba(244, 67, 54, 0.3);
         }
 
-        /* Timer */
         .timer {
             font-size: 16px;
-            padding: 16px;
-            background: rgba(22, 152, 217, 0.15);
-            border-radius: var(--border-radius);
+            padding: 12px;
+            background: rgba(22, 152, 217, 0.2);
+            border-radius: 12px;
             margin: 20px 0;
-            font-weight: 600;
+            font-weight: 500;
             text-align: center;
             display: none;
-            border: 1px solid rgba(22, 152, 217, 0.2);
-            backdrop-filter: blur(10px);
         }
 
         .timer.active {
             display: block;
-            animation: fadeIn 0.3s ease;
         }
 
         .timer.warning {
-            background: rgba(244, 67, 54, 0.15);
-            border-color: rgba(244, 67, 54, 0.2);
+            background: rgba(244, 67, 54, 0.2);
             animation: pulse 1s infinite;
         }
 
@@ -372,117 +283,72 @@
             100% { opacity: 1; }
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
         /* Prediction Buttons */
         .prediction-buttons {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin: 24px 0;
+            gap: 15px;
+            margin: 20px 0;
         }
 
         .prediction-btn {
-            padding: 28px 16px;
+            padding: 24px 16px;
             border: none;
-            border-radius: var(--border-radius);
+            border-radius: 18px;
             font-size: 16px;
             font-weight: 700;
             cursor: pointer;
-            box-shadow: var(--shadow);
-            transition: var(--transition);
-            min-height: 120px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            transition: all 0.2s ease;
+            min-height: 90px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .prediction-btn::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(rgba(255, 255, 255, 0.1), transparent);
-            opacity: 0;
-            transition: var(--transition);
+            gap: 6px;
         }
 
         .prediction-btn:active {
-            transform: translateY(4px) scale(0.98);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .prediction-btn:active::after {
-            opacity: 1;
+            transform: translateY(3px) scale(0.97);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
         }
 
         .up-btn {
-            background: var(--success-gradient);
+            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
             color: white;
         }
 
         .down-btn {
-            background: var(--danger-gradient);
+            background: linear-gradient(135deg, #F44336 0%, #C62828 100%);
             color: white;
         }
 
         .btn-icon {
-            font-size: 32px;
+            font-size: 24px;
             margin-bottom: 5px;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
         }
 
         .btn-text {
-            font-size: 16px;
-            font-weight: 700;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            font-size: 15px;
+            font-weight: 600;
         }
 
         button:disabled {
-            opacity: 0.7;
+            opacity: 0.6;
             cursor: not-allowed;
             transform: none !important;
         }
 
-        /* Status Message */
-        .status-message {
-            padding: 16px;
-            border-radius: var(--border-radius);
-            text-align: center;
-            margin: 20px 0;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--card-border);
-            backdrop-filter: blur(10px);
-            font-weight: 500;
-        }
-
-        .status-waiting {
-            background: rgba(22, 152, 217, 0.15);
-            color: var(--secondary-color);
-            border-color: rgba(22, 152, 217, 0.2);
-        }
-
         /* Results */
         .result {
-            margin: 24px 0;
-            padding: 24px;
-            border-radius: var(--border-radius);
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 18px;
             display: none;
             background: var(--card-bg);
-            box-shadow: var(--shadow);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
             animation: slideIn 0.4s ease;
             border-left: 4px solid transparent;
-            border: 1px solid var(--card-border);
-            backdrop-filter: blur(10px);
         }
 
         @keyframes slideIn {
@@ -498,87 +364,58 @@
             border-left-color: var(--danger-color);
         }
 
-        .result h3 {
-            margin-bottom: 12px;
-            font-size: 20px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .result p {
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .result strong {
-            color: var(--text-color);
-        }
-
         /* Statistics */
         .stats {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 12px;
-            margin: 24px 0;
+            margin: 20px 0;
         }
 
         .stat-item {
             background: var(--card-bg);
-            padding: 20px 16px;
-            border-radius: var(--border-radius);
+            padding: 16px;
+            border-radius: 16px;
             text-align: center;
             border: 1px solid var(--card-border);
-            backdrop-filter: blur(10px);
-            transition: var(--transition);
-        }
-
-        .stat-item:active {
-            transform: scale(0.97);
         }
 
         .stat-value {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 800;
             color: var(--primary-color);
-            margin: 8px 0;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            margin: 5px 0;
         }
 
         .stat-label {
-            font-size: 13px;
+            font-size: 12px;
             color: var(--text-secondary);
-            font-weight: 500;
         }
 
         /* Tabs Navigation */
         .tabs {
             display: flex;
             background: var(--card-bg);
-            border-radius: var(--border-radius-sm);
-            padding: 6px;
-            margin: 24px 0;
+            border-radius: 14px;
+            padding: 4px;
+            margin: 20px 0;
             border: 1px solid var(--card-border);
-            backdrop-filter: blur(10px);
         }
 
         .tab {
             flex: 1;
             padding: 14px;
             text-align: center;
-            border-radius: var(--border-radius-sm);
+            border-radius: 12px;
             cursor: pointer;
             font-size: 14px;
-            font-weight: 600;
-            transition: var(--transition);
-            color: var(--text-secondary);
+            font-weight: 500;
+            transition: all 0.3s ease;
         }
 
         .tab.active {
-            background: var(--primary-gradient);
-            color: white;
-            box-shadow: 0 4px 12px rgba(255, 153, 0, 0.3);
+            background: rgba(22, 152, 217, 0.3);
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
         }
 
         /* Tab Content */
@@ -591,20 +428,23 @@
             display: block;
         }
 
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
         .history {
             background: var(--card-bg);
             padding: 20px;
-            border-radius: var(--border-radius);
-            max-height: 280px;
+            border-radius: 18px;
+            max-height: 220px;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
             border: 1px solid var(--card-border);
-            backdrop-filter: blur(10px);
         }
 
         .history::-webkit-scrollbar {
             width: 4px;
-            background: transparent;
         }
 
         .history::-webkit-scrollbar-thumb {
@@ -613,22 +453,19 @@
         }
 
         .history h3 {
-            margin: 0 0 16px 0;
+            margin: 0 0 15px 0;
             color: var(--primary-color);
             font-size: 16px;
             font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
 
         .history-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 14px 0;
+            padding: 12px 0;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .history-item:last-child {
@@ -637,8 +474,7 @@
 
         .history-time {
             color: var(--text-secondary);
-            font-size: 13px;
-            min-width: 50px;
+            font-size: 12px;
         }
 
         .history-correct {
@@ -654,43 +490,27 @@
         .chart-container {
             background: var(--card-bg);
             padding: 20px;
-            border-radius: var(--border-radius);
-            height: 320px;
+            border-radius: 18px;
+            height: 280px;
             border: 1px solid var(--card-border);
-            backdrop-filter: blur(10px);
         }
 
         .leaderboard {
             background: var(--card-bg);
             padding: 20px;
-            border-radius: var(--border-radius);
-            max-height: 320px;
+            border-radius: 18px;
+            max-height: 280px;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
             border: 1px solid var(--card-border);
-            backdrop-filter: blur(10px);
-        }
-
-        .leaderboard h3 {
-            margin: 0 0 16px 0;
-            color: var(--primary-color);
-            font-size: 16px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
 
         .leaderboard-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 14px 0;
+            padding: 12px 0;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .leaderboard-item:last-child {
-            border-bottom: none;
         }
 
         .leaderboard-rank {
@@ -698,7 +518,6 @@
             text-align: center;
             font-weight: 700;
             color: var(--primary-color);
-            font-size: 16px;
         }
 
         .leaderboard-name {
@@ -710,7 +529,6 @@
         .leaderboard-score {
             font-weight: 700;
             color: gold;
-            font-size: 15px;
         }
 
         /* Shop Modal */
@@ -720,10 +538,9 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.9);
             z-index: 1000;
             display: none;
-            animation: fadeIn 0.3s ease;
         }
 
         .shop-modal {
@@ -733,7 +550,7 @@
             right: 0;
             background: var(--darker-bg);
             border-radius: 24px 24px 0 0;
-            padding: 24px;
+            padding: 25px;
             z-index: 1001;
             display: none;
             max-height: 85vh;
@@ -741,8 +558,6 @@
             -webkit-overflow-scrolling: touch;
             transform: translateY(100%);
             transition: transform 0.3s ease;
-            box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--card-border);
         }
 
         .shop-modal.open {
@@ -754,42 +569,26 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
-            padding-bottom: 16px;
+            padding-bottom: 15px;
             border-bottom: 1px solid var(--card-border);
         }
 
         .shop-title {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 700;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 5px 0;
+            color: var(--primary-color);
         }
 
         .close-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--danger-gradient);
+            background: var(--danger-color);
             border: none;
             color: white;
-            font-weight: bold;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
-            transition: var(--transition);
-        }
-
-        .close-btn:active {
-            transform: scale(0.9);
+            font-weight: bold;
+            font-size: 18px;
         }
 
         .payment-options {
@@ -801,13 +600,12 @@
 
         .payment-option {
             background: var(--card-bg);
-            padding: 20px 16px;
-            border-radius: var(--border-radius);
+            padding: 16px;
+            border-radius: 14px;
             text-align: center;
             cursor: pointer;
             border: 2px solid transparent;
-            transition: var(--transition);
-            backdrop-filter: blur(10px);
+            transition: all 0.2s ease;
         }
 
         .payment-option:active {
@@ -816,13 +614,12 @@
 
         .payment-option.selected {
             border-color: var(--primary-color);
-            background: rgba(255, 153, 0, 0.15);
-            box-shadow: 0 4px 12px rgba(255, 153, 0, 0.2);
+            background: rgba(255, 153, 0, 0.1);
         }
 
         .payment-icon {
-            font-size: 32px;
-            margin-bottom: 10px;
+            font-size: 24px;
+            margin-bottom: 8px;
         }
 
         .payment-name {
@@ -835,18 +632,16 @@
             grid-template-columns: repeat(2, 1fr);
             gap: 12px;
             margin: 20px 0;
-            padding: 5px 0;
         }
 
         .pack-option {
             background: var(--card-bg);
-            padding: 20px 16px;
-            border-radius: var(--border-radius);
+            padding: 16px;
+            border-radius: 14px;
             text-align: center;
             cursor: pointer;
             border: 2px solid transparent;
-            transition: var(--transition);
-            backdrop-filter: blur(10px);
+            transition: all 0.2s ease;
         }
 
         .pack-option:active {
@@ -855,16 +650,14 @@
 
         .pack-option.selected {
             border-color: var(--primary-color);
-            background: rgba(255, 153, 0, 0.15);
-            box-shadow: 0 4px 12px rgba(255, 153, 0, 0.2);
+            background: rgba(255, 153, 0, 0.1);
         }
 
         .pack-amount {
-            font-size: 18px;
-            font-weight: 800;
+            font-size: 16px;
+            font-weight: 700;
             color: gold;
-            margin-bottom: 6px;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            margin-bottom: 5px;
         }
 
         .pack-price {
@@ -873,50 +666,51 @@
         }
 
         .buy-btn {
-            background: var(--success-gradient);
+            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
             color: white;
             border: none;
-            padding: 20px;
-            border-radius: var(--border-radius);
+            padding: 18px;
+            border-radius: 14px;
             font-size: 16px;
             font-weight: 700;
             cursor: pointer;
             width: 100%;
             margin-top: 20px;
-            box-shadow: 0 6px 16px rgba(76, 175, 80, 0.3);
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .buy-btn:active {
-            transform: translateY(2px);
-            box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
         }
 
         .buy-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
-            transform: none !important;
-            box-shadow: none;
         }
 
-        /* Loading States */
+        /* Status Messages */
+        .status-message {
+            padding: 12px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 15px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--card-border);
+        }
+
+        .status-waiting {
+            background: rgba(22, 152, 217, 0.2);
+            color: var(--secondary-color);
+        }
+
         .loading {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 12px;
-            padding: 16px;
+            gap: 10px;
+            padding: 10px;
         }
 
         .loading-spinner {
-            width: 24px;
-            height: 24px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-top: 3px solid var(--primary-color);
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid var(--primary-color);
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -926,56 +720,19 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Notification */
-        .notification {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 16px 24px;
-            border-radius: var(--border-radius);
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            backdrop-filter: blur(10px);
-            z-index: 2000;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            box-shadow: var(--shadow);
-            animation: slideInDown 0.3s ease;
-            max-width: 90%;
-        }
-
-        @keyframes slideInDown {
-            from { opacity: 0; transform: translate(-50%, -20px); }
-            to { opacity: 1; transform: translate(-50%, 0); }
-        }
-
-        .notification.success {
-            border-left: 4px solid var(--success-color);
-        }
-
-        .notification.error {
-            border-left: 4px solid var(--danger-color);
-        }
-
-        .notification.info {
-            border-left: 4px solid var(--secondary-color);
-        }
-
         /* Responsive Design */
         @media (max-width: 380px) {
             .container {
-                padding: 12px;
+                padding: 10px;
             }
             
             .logo-text {
-                font-size: 18px;
+                font-size: 16px;
             }
             
             .user-name {
                 max-width: 80px;
-                font-size: 13px;
+                font-size: 12px;
             }
             
             .time-options {
@@ -984,25 +741,25 @@
             }
             
             .time-option {
-                padding: 12px 8px;
-                font-size: 14px;
+                padding: 10px 6px;
+                font-size: 13px;
             }
             
             .current-price {
-                font-size: 34px;
+                font-size: 30px;
             }
             
             .prediction-btn {
-                min-height: 110px;
-                padding: 24px 12px;
+                min-height: 80px;
+                padding: 20px 12px;
             }
             
             .btn-icon {
-                font-size: 28px;
+                font-size: 20px;
             }
             
             .btn-text {
-                font-size: 14px;
+                font-size: 13px;
             }
             
             .stats {
@@ -1011,11 +768,11 @@
             }
             
             .stat-item {
-                padding: 16px 12px;
+                padding: 12px;
             }
             
             .stat-value {
-                font-size: 20px;
+                font-size: 18px;
             }
             
             .payment-options,
@@ -1032,46 +789,38 @@
 
         @media (max-height: 700px) and (orientation: landscape) {
             .container {
-                padding: 12px;
+                padding: 8px;
             }
             
             .header {
-                margin-bottom: 16px;
+                margin-bottom: 12px;
             }
             
             .time-selection {
-                margin-bottom: 16px;
-                padding: 16px;
+                margin-bottom: 10px;
+                padding: 12px;
             }
             
             .price-card {
-                margin-bottom: 16px;
-                padding: 20px;
+                margin-bottom: 12px;
+                padding: 15px;
             }
             
             .current-price {
-                font-size: 32px;
+                font-size: 28px;
             }
             
             .prediction-buttons {
-                margin: 16px 0;
+                margin: 12px 0;
             }
             
             .prediction-btn {
-                min-height: 100px;
-                padding: 20px;
+                min-height: 70px;
+                padding: 15px;
             }
             
             .stats {
-                margin: 16px 0;
-            }
-            
-            .history, .leaderboard {
-                max-height: 200px;
-            }
-            
-            .chart-container {
-                height: 240px;
+                margin: 12px 0;
             }
         }
 
@@ -1083,6 +832,12 @@
         /* Animation Classes */
         .pulse {
             animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
 
         .shake {
@@ -1112,9 +867,9 @@
                 <div class="logo-icon">₿</div>
                 <div class="logo-text">Биткоин Прогноз</div>
             </div>
-            <div class="user-info" onclick="openShop()">
+            <div class="user-info">
                 <span class="user-name" id="user-name">Игрок</span>
-                <span class="coins">
+                <span class="coins" onclick="openShop()">
                     🪙 <span id="user-coins">100</span>
                     <button class="add-coins-btn">+</button>
                 </span>
@@ -1124,25 +879,23 @@
         <main>
             <!-- Выбор времени прогноза -->
             <div class="time-selection">
-                <div class="time-label"><i class="fas fa-clock"></i> Время прогноза:</div>
+                <div class="time-label">⏰ Время прогноза:</div>
                 <div class="time-options">
                     <div class="time-option active" data-time="15" onclick="selectTime(15)">15 сек</div>
                     <div class="time-option" data-time="30" onclick="selectTime(30)">30 сек</div>
                     <div class="time-option" data-time="60" onclick="selectTime(60)">60 сек</div>
                 </div>
-                <div class="currency-toggle-container">
-                    <div class="currency-toggle" onclick="toggleCurrency()">
-                        <span>₽</span>
-                        <div class="toggle-switch" id="currency-toggle">
-                            <div class="toggle-handle"></div>
-                        </div>
-                        <span>$</span>
+                <div class="currency-toggle" onclick="toggleCurrency()">
+                    <span>₽</span>
+                    <div class="toggle-switch" id="currency-toggle">
+                        <div class="toggle-handle"></div>
                     </div>
+                    <span>$</span>
                 </div>
             </div>
 
             <div class="price-card">
-                <div class="price-label"><i class="fas fa-chart-line"></i> ТЕКУЩИЙ КУРС BTC</div>
+                <div class="price-label">ТЕКУЩИЙ КУРС BTC</div>
                 <div class="current-price" id="current-price">
                     <div class="loading">
                         <div class="loading-spinner"></div>
@@ -1152,10 +905,10 @@
                 <div class="price-change" id="price-change">--</div>
             </div>
 
-            <div class="timer" id="timer"><i class="fas fa-hourglass-half"></i> До обновления: 15 сек</div>
+            <div class="timer" id="timer">⏱️ До обновления: 15 сек</div>
 
             <div class="status-message status-waiting" id="waiting-message">
-                <i class="fas fa-bullseye"></i> Выберите вариант прогноза и время
+                🎯 Выберите вариант прогноза и время
             </div>
 
             <div class="prediction-buttons">
@@ -1173,28 +926,28 @@
 
             <div class="stats">
                 <div class="stat-item">
-                    <div class="stat-label"><i class="fas fa-check-circle"></i> ПРАВИЛЬНО</div>
+                    <div class="stat-label">ПРАВИЛЬНО</div>
                     <div class="stat-value" id="correct-guesses">0</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-label"><i class="fas fa-times-circle"></i> НЕПРАВИЛЬНО</div>
+                    <div class="stat-label">НЕПРАВИЛЬНО</div>
                     <div class="stat-value" id="incorrect-guesses">0</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-label"><i class="fas fa-crosshairs"></i> ТОЧНОСТЬ</div>
+                    <div class="stat-label">ТОЧНОСТЬ</div>
                     <div class="stat-value" id="accuracy">0%</div>
                 </div>
             </div>
 
             <div class="tabs">
-                <div class="tab active" onclick="switchTab(0)"><i class="fas fa-history"></i> История</div>
-                <div class="tab" onclick="switchTab(1)"><i class="fas fa-chart-area"></i> График</div>
-                <div class="tab" onclick="switchTab(2)"><i class="fas fa-trophy"></i> Лидеры</div>
+                <div class="tab active" onclick="switchTab(0)">История</div>
+                <div class="tab" onclick="switchTab(1)">График</div>
+                <div class="tab" onclick="switchTab(2)">Лидеры</div>
             </div>
 
             <div class="tab-content active">
                 <div class="history">
-                    <h3><i class="fas fa-chart-bar"></i> История прогнозов</h3>
+                    <h3>📊 История прогнозов</h3>
                     <div id="history-list">
                         <div class="history-item">
                             <span class="history-time">--:--</span>
@@ -1214,7 +967,7 @@
 
             <div class="tab-content">
                 <div class="leaderboard">
-                    <h3><i class="fas fa-trophy"></i> Топ игроков</h3>
+                    <h3>🏆 Топ игроков</h3>
                     <div id="leaderboard-list">
                         <div class="leaderboard-item">
                             <div class="leaderboard-rank">1</div>
@@ -1241,7 +994,7 @@
     <div class="overlay" id="overlay" onclick="closeShop()"></div>
     <div class="shop-modal" id="shop-modal">
         <div class="shop-header">
-            <div class="shop-title"><i class="fas fa-gem"></i> Пополнить баланс</div>
+            <div class="shop-title">💎 Пополнить баланс</div>
             <button class="close-btn" onclick="closeShop()">×</button>
         </div>
 
@@ -1264,7 +1017,7 @@
             </div>
         </div>
 
-        <h3><i class="fas fa-bullseye"></i> Выберите пакет монет:</h3>
+        <h3>🎯 Выберите пакет монет:</h3>
         <div class="pack-options">
             <div class="pack-option" onclick="selectPack(100, 100)">
                 <div class="pack-amount">100 🪙</div>
@@ -1285,7 +1038,7 @@
         </div>
 
         <button class="buy-btn" id="buy-btn" onclick="processPayment()" disabled>
-            <i class="fas fa-shopping-cart"></i> Купить выбранный пакет
+            Купить выбранный пакет
         </button>
     </div>
 
@@ -1343,10 +1096,11 @@
             currentPrediction: null,
             currency: 'RUB', // 'RUB' или 'USD'
             priceUpdateInterval: null,
-            lastPrice: 0,
-            usingFallbackData: false,
-            fallbackUpdateInterval: null
+            lastPrice: 0
         };
+
+        // API ключ CoinMarketCap
+        const CMC_API_KEY = '271f6486-53a1-4106-920a-9ddb03eedd5f';
 
         // Инициализация игры
         async function initGame() {
@@ -1354,6 +1108,7 @@
             initPriceChart();
             setupEventListeners();
             await fetchBitcoinPrice();
+            startPriceUpdates();
             
             if (tg.initDataUnsafe?.user) {
                 const user = tg.initDataUnsafe.user;
@@ -1367,94 +1122,40 @@
         // Получение курса Биткоина
         async function fetchBitcoinPrice() {
             try {
-                // Используем бесплатный API для получения курса BTC
-                const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,rub&include_24hr_change=true');
+                // Пробуем получить курс через CoinMarketCap API
+                const response = await fetch('/api/bitcoin-price');
                 
                 if (response.ok) {
                     const data = await response.json();
-                    const price = state.currency === 'RUB' ? data.bitcoin.rub : data.bitcoin.usd;
-                    const change24h = state.currency === 'RUB' ? data.bitcoin.rub_24h_change : data.bitcoin.usd_24h_change;
-                    
-                    // Останавливаем обновление фолбэка, если оно было запущено
-                    if (state.fallbackUpdateInterval) {
-                        clearInterval(state.fallbackUpdateInterval);
-                        state.fallbackUpdateInterval = null;
-                        state.usingFallbackData = false;
-                    }
-                    
-                    updatePriceDisplay(price, change24h);
-                    startPriceUpdates();
+                    updatePriceDisplay(data.price, data.change24h);
                     return;
                 }
                 
                 // Если API не доступно, используем fallback
                 console.log('Используем fallback данные');
                 const fallbackPrice = state.currency === 'RUB' ? 
-                    (3500000 + Math.random() * 100000) : 
-                    (42000 + Math.random() * 2000);
+                    (9500000 + Math.random() * 100000) : 
+                    (116000 + Math.random() * 2000);
                 const fallbackChange = (Math.random() - 0.5) * 10;
                 
                 updatePriceDisplay(fallbackPrice, fallbackChange);
-                startFallbackUpdates();
                 
             } catch (error) {
                 console.error('Ошибка получения курса:', error);
                 // Fallback на случай ошибки
                 const fallbackPrice = state.currency === 'RUB' ? 3500000 : 42000;
                 updatePriceDisplay(fallbackPrice, 0);
-                startFallbackUpdates();
             }
-        }
-
-        // Запуск обновления фолбэк данных
-        function startFallbackUpdates() {
-            state.usingFallbackData = true;
-            
-            // Останавливаем предыдущий интервал, если он был
-            if (state.fallbackUpdateInterval) {
-                clearInterval(state.fallbackUpdateInterval);
-            }
-            
-            // Обновляем каждую секунду с волатильностью 2%
-            state.fallbackUpdateInterval = setInterval(() => {
-                if (!state.canPredict) return; // Не обновляем во время активного прогноза
-                
-                // Генерируем случайное изменение цены в пределах 2%
-                const changePercent = (Math.random() - 0.5) * 4; // -2% to +2%
-                const newPrice = state.currentPrice * (1 + changePercent / 100);
-                
-                // Вычисляем изменение за 24 часа для отображения
-                const change24h = (newPrice - state.currentPrice) / state.currentPrice * 100 * 24;
-                
-                updatePriceDisplay(newPrice, change24h);
-            }, 1000);
         }
 
         // Обновление отображения цены
         function updatePriceDisplay(price, change24h) {
-            // Сохраняем предыдущую цену для анимации
-            const previousPrice = state.currentPrice;
             state.lastPrice = state.currentPrice;
             state.currentPrice = price;
             
             const formattedPrice = state.currency === 'RUB' ?
                 `${formatNumber(price)} ₽` :
                 `$${formatNumber(price)}`;
-            
-            // Добавляем класс для анимации изменения цены
-            if (previousPrice > 0) {
-                if (price > previousPrice) {
-                    elements.currentPrice.classList.add('price-up');
-                    setTimeout(() => {
-                        elements.currentPrice.classList.remove('price-up');
-                    }, 500);
-                } else if (price < previousPrice) {
-                    elements.currentPrice.classList.add('price-down');
-                    setTimeout(() => {
-                        elements.currentPrice.classList.remove('price-down');
-                    }, 500);
-                }
-            }
             
             elements.currentPrice.innerHTML = formattedPrice;
             
@@ -1482,11 +1183,6 @@
 
         // Запуск регулярного обновления цены
         function startPriceUpdates() {
-            // Останавливаем предыдущий интервал, если он был
-            if (state.priceUpdateInterval) {
-                clearInterval(state.priceUpdateInterval);
-            }
-            
             // Обновляем каждые 30 секунд
             state.priceUpdateInterval = setInterval(async () => {
                 if (!state.canPredict) return; // Не обновляем во время активного прогноза
@@ -1501,26 +1197,7 @@
             
             // Перезагружаем цену в новой валюте
             fetchBitcoinPrice();
-            updatePriceChart();
             saveUserData();
-        }
-
-        // Обновление графика при смене валюты
-        function updatePriceChart() {
-            if (!state.priceChart) return;
-            
-            // Обновляем данные графика
-            state.priceChart.data.datasets[0].label = state.currency === 'RUB' ? 'BTC/RUB' : 'BTC/USD';
-            
-            // Обновляем подписи осей
-            state.priceChart.options.scales.y.ticks.callback = function(value) {
-                return state.currency === 'RUB' ? 
-                    (value / 1000000).toFixed(1) + 'M' : 
-                    (value / 1000).toFixed(0) + 'K';
-            };
-            
-            state.priceChart.options.plugins.title.text = `Изменение цены за 24 часа (${state.currency})`;
-            state.priceChart.update();
         }
 
         // Выбор времени прогноза
@@ -1543,39 +1220,18 @@
         function loadUserData() {
             const savedData = localStorage.getItem('bitcoin_prediction_user');
             if (savedData) {
-                try {
-                    const userData = JSON.parse(savedData);
-                    state.correctGuesses = userData.correctGuesses || 0;
-                    state.incorrectGuesses = userData.incorrectGuesses || 0;
-                    state.predictionHistory = userData.predictionHistory || [];
-                    state.userCoins = userData.userCoins || 100;
-                    state.predictionTime = userData.predictionTime || 15;
-                    state.currency = userData.currency || 'RUB';
-                    
-                    selectTime(state.predictionTime);
-                    elements.currencyToggle.classList.toggle('usd', state.currency === 'USD');
-                    updateUI();
-                } catch (e) {
-                    console.error('Ошибка загрузки данных:', e);
-                    // Сброс данных при ошибке
-                    resetUserData();
-                }
+                const userData = JSON.parse(savedData);
+                state.correctGuesses = userData.correctGuesses || 0;
+                state.incorrectGuesses = userData.incorrectGuesses || 0;
+                state.predictionHistory = userData.predictionHistory || [];
+                state.userCoins = userData.userCoins || 100;
+                state.predictionTime = userData.predictionTime || 15;
+                state.currency = userData.currency || 'RUB';
+                
+                selectTime(state.predictionTime);
+                elements.currencyToggle.classList.toggle('usd', state.currency === 'USD');
+                updateUI();
             }
-        }
-
-        // Сброс данных пользователя
-        function resetUserData() {
-            state.correctGuesses = 0;
-            state.incorrectGuesses = 0;
-            state.predictionHistory = [];
-            state.userCoins = 100;
-            state.predictionTime = 15;
-            state.currency = 'RUB';
-            
-            selectTime(state.predictionTime);
-            elements.currencyToggle.classList.toggle('usd', state.currency === 'USD');
-            updateUI();
-            saveUserData();
         }
 
         // Сохранение данных пользователя
@@ -1597,7 +1253,6 @@
             const now = Date.now();
             
             // Генерация демо-данных
-            state.priceHistory = [];
             for (let i = 24; i >= 0; i--) {
                 const time = now - (i * 3600000);
                 const price = state.currency === 'RUB' ? 
@@ -1692,12 +1347,7 @@
 
         // Прогноз игрока
         function makePrediction(direction) {
-            if (!state.canPredict || state.userCoins <= 0) {
-                if (state.userCoins <= 0) {
-                    showNotification('Недостаточно монет! Пополните баланс.', 'error');
-                }
-                return;
-            }
+            if (!state.canPredict || state.userCoins <= 0) return;
             
             state.canPredict = false;
             state.currentPrediction = direction;
@@ -1706,28 +1356,6 @@
             elements.waitingMessage.style.display = 'none';
             
             startGameTimer();
-        }
-
-        // Показать уведомление
-        function showNotification(message, type = 'info') {
-            // Создаем элемент уведомления
-            const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
-            
-            // Добавляем иконку в зависимости от типа
-            let icon = 'ℹ️';
-            if (type === 'success') icon = '✅';
-            if (type === 'error') icon = '❌';
-            
-            notification.innerHTML = `${icon} ${message}`;
-            
-            // Добавляем уведомление в body
-            document.body.appendChild(notification);
-            
-            // Удаляем уведомление через 3 секунды
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
         }
 
         // Таймер игры
@@ -1788,11 +1416,9 @@
             if (isCorrect) {
                 state.correctGuesses++;
                 state.userCoins += baseReward;
-                showNotification(`Правильно! +${baseReward} монет`, 'success');
             } else {
                 state.incorrectGuesses++;
                 state.userCoins -= basePenalty;
-                showNotification(`Неправильно! -${basePenalty} монет`, 'error');
             }
             
             // Сохранение в историю
@@ -1945,8 +1571,6 @@
             elements.buyBtn.textContent = 'Обработка...';
             elements.buyBtn.disabled = true;
             
-            // В реальном приложении здесь должна быть интеграция с платежной системой
-            // Для демонстрации просто добавляем монеты через 2 секунды
             setTimeout(() => {
                 state.userCoins += state.selectedPack.amount;
                 elements.userCoins.textContent = state.userCoins;
@@ -1956,7 +1580,6 @@
                     closeShop();
                     elements.buyBtn.textContent = 'Купить выбранный пакет';
                     saveUserData();
-                    showNotification(`Баланс пополнен на ${state.selectedPack.amount} монет!`, 'success');
                 }, 1000);
             }, 2000);
         }
