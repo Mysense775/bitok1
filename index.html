@@ -7,6 +7,7 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        /* Стили остаются без изменений */
         :root {
             --primary-color: #ff9900;
             --secondary-color: #1698d9;
@@ -56,7 +57,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             padding: 12px 0;
             position: sticky;
             top: var(--safe-area-inset-top);
@@ -133,7 +134,7 @@
             background: var(--card-bg);
             padding: 15px;
             border-radius: 16px;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             border: 1px solid var(--card-border);
         }
 
@@ -147,7 +148,7 @@
         .time-options {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
+            gap: 8px;
             margin-bottom: 10px;
         }
 
@@ -163,19 +164,11 @@
             font-weight: 500;
         }
 
-        .time-option:hover {
-            background: rgba(255, 255, 255, 0.15);
-        }
-
         .time-option.active {
             border-color: var(--primary-color);
             background: rgba(255, 153, 0, 0.2);
             color: var(--primary-color);
             font-weight: 600;
-        }
-
-        .time-option:active {
-            transform: scale(0.95);
         }
 
         .currency-toggle {
@@ -195,7 +188,6 @@
             background: rgba(255, 255, 255, 0.2);
             border-radius: 10px;
             position: relative;
-            transition: all 0.3s ease;
         }
 
         .toggle-switch::before {
@@ -214,17 +206,101 @@
             left: 21px;
         }
 
+        /* Real-time Visualization */
+        .price-visualization {
+            background: var(--card-bg);
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border: 1px solid var(--card-border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .visualization-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .visualization-title {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .visualization-time {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .price-chart-mini {
+            height: 60px;
+            width: 100%;
+            position: relative;
+        }
+
+        .chart-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .current-price-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.3);
+            z-index: 1;
+        }
+
+        .price-indicator {
+            position: absolute;
+            right: 5px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 600;
+            z-index: 2;
+        }
+
+        .price-up {
+            color: var(--success-color);
+            background: rgba(76, 175, 80, 0.2);
+        }
+
+        .price-down {
+            color: var(--danger-color);
+            background: rgba(244, 67, 54, 0.2);
+        }
+
+        /* Demo mode indicator */
+        .demo-mode {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(255, 153, 0, 0.3);
+            color: var(--primary-color);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 600;
+            z-index: 3;
+        }
+
         /* Real-time Price Ticker */
         .price-ticker {
             background: var(--card-bg);
             padding: 12px;
             border-radius: 12px;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             border: 1px solid var(--card-border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 13px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            position: relative;
         }
 
         .ticker-item {
@@ -235,10 +311,12 @@
 
         .ticker-label {
             color: var(--text-secondary);
+            font-size: 12px;
         }
 
         .ticker-value {
             font-weight: 600;
+            font-size: 12px;
         }
 
         .ticker-up {
@@ -253,10 +331,10 @@
         .price-card {
             background: var(--card-bg);
             padding: 20px;
-            border-radius: 20px;
-            margin-bottom: 20px;
+            border-radius: 16px;
+            margin-bottom: 16px;
             text-align: center;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
             border: 1px solid var(--card-border);
             position: relative;
         }
@@ -268,12 +346,16 @@
         }
 
         .current-price {
-            font-size: 36px;
+            font-size: 32px;
             font-weight: 800;
             color: var(--primary-color);
-            margin: 10px 0;
+            margin: 8px 0;
             letter-spacing: -0.5px;
-            transition: all 0.5s ease;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
         }
 
         .price-change {
@@ -282,7 +364,6 @@
             border-radius: 16px;
             display: inline-block;
             font-weight: 500;
-            transition: all 0.3s ease;
         }
 
         .positive {
@@ -295,23 +376,25 @@
             color: #F44336;
         }
 
-        /* Live price animation */
-        .price-up {
-            animation: priceUp 0.5s ease;
+        /* Animations */
+        @keyframes pulseGreen {
+            0% { background-color: rgba(76, 175, 80, 0.1); }
+            50% { background-color: rgba(76, 175, 80, 0.3); }
+            100% { background-color: rgba(76, 175, 80, 0.1); }
         }
 
-        .price-down {
-            animation: priceDown 0.5s ease;
+        @keyframes pulseRed {
+            0% { background-color: rgba(244, 67, 54, 0.1); }
+            50% { background-color: rgba(244, 67, 54, 0.3); }
+            100% { background-color: rgba(244, 67, 54, 0.1); }
         }
 
-        @keyframes priceUp {
-            0% { color: var(--success-color); transform: scale(1.05); }
-            100% { color: var(--primary-color); transform: scale(1); }
+        .price-up-animation {
+            animation: pulseGreen 1s ease-in-out;
         }
 
-        @keyframes priceDown {
-            0% { color: var(--danger-color); transform: scale(1.05); }
-            100% { color: var(--primary-color); transform: scale(1); }
+        .price-down-animation {
+            animation: pulseRed 1s ease-in-out;
         }
 
         .timer {
@@ -319,7 +402,7 @@
             padding: 12px;
             background: rgba(22, 152, 217, 0.2);
             border-radius: 12px;
-            margin: 20px 0;
+            margin: 16px 0;
             font-weight: 500;
             text-align: center;
             display: none;
@@ -327,11 +410,11 @@
 
         .timer.active {
             display: block;
+            animation: pulse 2s infinite;
         }
 
         .timer.warning {
             background: rgba(244, 67, 54, 0.2);
-            animation: pulse 1s infinite;
         }
 
         @keyframes pulse {
@@ -344,30 +427,24 @@
         .prediction-buttons {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin: 20px 0;
+            gap: 12px;
+            margin: 16px 0;
         }
 
         .prediction-btn {
-            padding: 24px 16px;
+            padding: 20px 12px;
             border: none;
-            border-radius: 18px;
+            border-radius: 16px;
             font-size: 16px;
             font-weight: 700;
             cursor: pointer;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-            transition: all 0.2s ease;
-            min-height: 90px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            min-height: 80px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 6px;
-        }
-
-        .prediction-btn:active {
-            transform: translateY(3px) scale(0.97);
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            gap: 4px;
         }
 
         .up-btn {
@@ -381,36 +458,29 @@
         }
 
         .btn-icon {
-            font-size: 24px;
-            margin-bottom: 5px;
+            font-size: 20px;
+            margin-bottom: 4px;
         }
 
         .btn-text {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 600;
         }
 
         button:disabled {
             opacity: 0.6;
             cursor: not-allowed;
-            transform: none !important;
         }
 
         /* Results */
         .result {
-            margin: 20px 0;
-            padding: 20px;
-            border-radius: 18px;
+            margin: 16px 0;
+            padding: 16px;
+            border-radius: 16px;
             display: none;
             background: var(--card-bg);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-            animation: slideIn 0.4s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
             border-left: 4px solid transparent;
-        }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
         }
 
         .win {
@@ -425,23 +495,23 @@
         .stats {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin: 20px 0;
+            gap: 8px;
+            margin: 16px 0;
         }
 
         .stat-item {
             background: var(--card-bg);
-            padding: 16px;
-            border-radius: 16px;
+            padding: 12px;
+            border-radius: 12px;
             text-align: center;
             border: 1px solid var(--card-border);
         }
 
         .stat-value {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 800;
             color: var(--primary-color);
-            margin: 5px 0;
+            margin: 4px 0;
         }
 
         .stat-label {
@@ -449,323 +519,18 @@
             color: var(--text-secondary);
         }
 
-        /* Tabs Navigation */
-        .tabs {
-            display: flex;
-            background: var(--card-bg);
-            border-radius: 14px;
-            padding: 4px;
-            margin: 20px 0;
-            border: 1px solid var(--card-border);
-        }
-
-        .tab {
-            flex: 1;
-            padding: 14px;
-            text-align: center;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .tab.active {
-            background: rgba(22, 152, 217, 0.3);
-            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
-        }
-
-        /* Tab Content */
-        .tab-content {
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .history {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 18px;
-            max-height: 220px;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            border: 1px solid var(--card-border);
-        }
-
-        .history::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .history::-webkit-scrollbar-thumb {
-            background: var(--primary-color);
-            border-radius: 2px;
-        }
-
-        .history h3 {
-            margin: 0 0 15px 0;
-            color: var(--primary-color);
-            font-size: 16px;
-            font-weight: 600;
-        }
-
-        .history-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            font-size: 13px;
-        }
-
-        .history-item:last-child {
-            border-bottom: none;
-        }
-
-        .history-time {
-            color: var(--text-secondary);
-            font-size: 12px;
-        }
-
-        .history-correct {
-            color: var(--success-color);
-            font-weight: 600;
-        }
-
-        .history-incorrect {
-            color: var(--danger-color);
-            font-weight: 600;
-        }
-
-        .chart-container {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 18px;
-            height: 280px;
-            border: 1px solid var(--card-border);
-        }
-
-        .leaderboard {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 18px;
-            max-height: 280px;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            border: 1px solid var(--card-border);
-        }
-
-        .leaderboard-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .leaderboard-rank {
-            width: 30px;
-            text-align: center;
-            font-weight: 700;
-            color: var(--primary-color);
-        }
-
-        .leaderboard-name {
-            flex: 1;
-            padding: 0 12px;
-            font-size: 14px;
-        }
-
-        .leaderboard-score {
-            font-weight: 700;
-            color: gold;
-        }
-
-        /* Shop Modal */
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 1000;
-            display: none;
-        }
-
-        .shop-modal {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--darker-bg);
-            border-radius: 24px 24px 0 0;
-            padding: 25px;
-            z-index: 1001;
-            display: none;
-            max-height: 85vh;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            transform: translateY(100%);
-            transition: transform 0.3s ease;
-        }
-
-        .shop-modal.open {
-            transform: translateY(0);
-        }
-
-        .shop-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--card-border);
-        }
-
-        .shop-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--primary-color);
-        }
-
-        .close-btn {
-            background: var(--danger-color);
-            border: none;
-            color: white;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 18px;
-        }
-
-        .payment-options {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .payment-option {
-            background: var(--card-bg);
-            padding: 16px;
-            border-radius: 14px;
-            text-align: center;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: all 0.2s ease;
-        }
-
-        .payment-option:active {
-            transform: scale(0.95);
-        }
-
-        .payment-option.selected {
-            border-color: var(--primary-color);
-            background: rgba(255, 153, 0, 0.1);
-        }
-
-        .payment-icon {
-            font-size: 24px;
-            margin-bottom: 8px;
-        }
-
-        .payment-name {
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .pack-options {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin: 20px 0;
-        }
-
-        .pack-option {
-            background: var(--card-bg);
-            padding: 16px;
-            border-radius: 14px;
-            text-align: center;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: all 0.2s ease;
-        }
-
-        .pack-option:active {
-            transform: scale(0.95);
-        }
-
-        .pack-option.selected {
-            border-color: var(--primary-color);
-            background: rgba(255, 153, 0, 0.1);
-        }
-
-        .pack-amount {
-            font-size: 16px;
-            font-weight: 700;
-            color: gold;
-            margin-bottom: 5px;
-        }
-
-        .pack-price {
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
-        .buy-btn {
-            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
-            color: white;
-            border: none;
-            padding: 18px;
-            border-radius: 14px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 20px;
-        }
-
-        .buy-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        /* Status Messages */
-        .status-message {
-            padding: 12px;
-            border-radius: 12px;
-            text-align: center;
-            margin: 15px 0;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid var(--card-border);
-        }
-
-        .status-waiting {
-            background: rgba(22, 152, 217, 0.2);
-            color: var(--secondary-color);
-        }
-
+        /* Loading */
         .loading {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 10px;
-            padding: 10px;
+            gap: 8px;
+            padding: 8px;
         }
 
         .loading-spinner {
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
             border: 2px solid rgba(255, 255, 255, 0.3);
             border-top: 2px solid var(--primary-color);
             border-radius: 50%;
@@ -787,148 +552,38 @@
                 font-size: 16px;
             }
             
-            .user-name {
-                max-width: 80px;
-                font-size: 12px;
-            }
-            
-            .time-options {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 8px;
-            }
-            
-            .time-option {
-                padding: 10px 6px;
-                font-size: 13px;
-            }
-            
-            .current-price {
-                font-size: 30px;
-            }
-            
-            .prediction-btn {
-                min-height: 80px;
-                padding: 20px 12px;
-            }
-            
-            .btn-icon {
-                font-size: 20px;
-            }
-            
-            .btn-text {
-                font-size: 13px;
-            }
-            
-            .stats {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 8px;
-            }
-            
-            .stat-item {
-                padding: 12px;
-            }
-            
-            .stat-value {
-                font-size: 18px;
-            }
-            
-            .payment-options,
-            .pack-options {
-                grid-template-columns: 1fr;
-            }
-            
-            .price-ticker {
-                flex-direction: column;
-                gap: 8px;
-                padding: 10px;
-            }
-            
-            .ticker-item {
-                justify-content: space-between;
-                width: 100%;
-            }
-        }
-
-        @media (min-width: 768px) {
-            .container {
-                max-width: 500px;
-            }
-        }
-
-        @media (max-height: 700px) and (orientation: landscape) {
-            .container {
-                padding: 8px;
-            }
-            
-            .header {
-                margin-bottom: 12px;
-            }
-            
-            .time-selection {
-                margin-bottom: 10px;
-                padding: 12px;
-            }
-            
-            .price-card {
-                margin-bottom: 12px;
-                padding: 15px;
-            }
-            
             .current-price {
                 font-size: 28px;
             }
             
-            .prediction-buttons {
-                margin: 12px 0;
-            }
-            
             .prediction-btn {
                 min-height: 70px;
-                padding: 15px;
-            }
-            
-            .stats {
-                margin: 12px 0;
+                padding: 16px 10px;
             }
             
             .price-ticker {
-                padding: 8px;
-                font-size: 12px;
+                grid-template-columns: 1fr;
+                gap: 6px;
+            }
+            
+            .price-chart-mini {
+                height: 50px;
             }
         }
 
-        /* iOS Specific Styles */
-        .ios .header {
-            padding-top: calc(12px + var(--safe-area-inset-top));
-        }
-
-        /* Animation Classes */
-        .pulse {
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        .shake {
-            animation: shake 0.5s ease;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-
-        /* Reduced Motion Support */
-        @media (prefers-reduced-motion: reduce) {
-            * {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
+        @media (max-width: 320px) {
+            .time-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .current-price {
+                font-size: 24px;
+            }
+            
+            .visualization-header {
+                flex-direction: column;
+                gap: 5px;
+                align-items: flex-start;
             }
         }
     </style>
@@ -950,27 +605,37 @@
         </header>
 
         <main>
-            <!-- Выбор времени прогноза -->
             <div class="time-selection">
                 <div class="time-label">⏰ Время прогноза:</div>
                 <div class="time-options">
-                    <div class="time-option active" data-time="15" onclick="selectTime(15)">15 сек</div>
-                    <div class="time-option" data-time="30" onclick="selectTime(30)">30 сек</div>
-                    <div class="time-option" data-time="60" onclick="selectTime(60)">60 сек</div>
+                    <div class="time-option active" onclick="selectTime(15)">15 сек</div>
+                    <div class="time-option" onclick="selectTime(30)">30 сек</div>
+                    <div class="time-option" onclick="selectTime(60)">60 сек</div>
                 </div>
                 <div class="currency-toggle" onclick="toggleCurrency()">
                     <span>₽</span>
-                    <div class="toggle-switch" id="currency-toggle">
-                        <div class="toggle-handle"></div>
-                    </div>
+                    <div class="toggle-switch" id="currency-toggle"></div>
                     <span>$</span>
                 </div>
             </div>
 
-            <!-- Тикер с реальным временем -->
+            <!-- Визуализация изменения курса -->
+            <div class="price-visualization">
+                <div class="visualization-header">
+                    <div class="visualization-title">📊 Изменение курса (60 сек)</div>
+                    <div class="visualization-time" id="visualization-time">--:--</div>
+                </div>
+                <div class="price-chart-mini">
+                    <canvas id="mini-chart" class="chart-canvas"></canvas>
+                    <div class="current-price-line"></div>
+                    <div class="price-indicator" id="price-indicator">--</div>
+                    <div class="demo-mode" id="demo-mode" style="display: none;">DEMO</div>
+                </div>
+            </div>
+
             <div class="price-ticker">
                 <div class="ticker-item">
-                    <span class="ticker-label">📊 Реальное время:</span>
+                    <span class="ticker-label">📊 Текущая:</span>
                     <span class="ticker-value" id="realtime-price">--</span>
                 </div>
                 <div class="ticker-item">
@@ -978,9 +643,14 @@
                     <span class="ticker-value" id="realtime-change">--</span>
                 </div>
                 <div class="ticker-item">
+                    <span class="ticker-label">📈 24ч:</span>
+                    <span class="ticker-value" id="daily-change">--</span>
+                </div>
+                <div class="ticker-item">
                     <span class="ticker-label">⏱️ Обновлено:</span>
                     <span class="ticker-value" id="last-update">--</span>
                 </div>
+                <div class="demo-mode" id="ticker-demo-mode" style="display: none;">DEMO РЕЖИМ</div>
             </div>
 
             <div class="price-card">
@@ -988,17 +658,13 @@
                 <div class="current-price" id="current-price">
                     <div class="loading">
                         <div class="loading-spinner"></div>
-                        Загрузка курса...
+                        Загрузка...
                     </div>
                 </div>
                 <div class="price-change" id="price-change">--</div>
             </div>
 
             <div class="timer" id="timer">⏱️ До обновления: 15 сек</div>
-
-            <div class="status-message status-waiting" id="waiting-message">
-                🎯 Выберите вариант прогноза и время
-            </div>
 
             <div class="prediction-buttons">
                 <button class="prediction-btn up-btn" id="up-btn" onclick="makePrediction('up')">
@@ -1027,119 +693,12 @@
                     <div class="stat-value" id="accuracy">0%</div>
                 </div>
             </div>
-
-            <div class="tabs">
-                <div class="tab active" onclick="switchTab(0)">История</div>
-                <div class="tab" onclick="switchTab(1)">График</div>
-                <div class="tab" onclick="switchTab(2)">Лидеры</div>
-            </div>
-
-            <div class="tab-content active">
-                <div class="history">
-                    <h3>📊 История прогнозов</h3>
-                    <div id="history-list">
-                        <div class="history-item">
-                            <span class="history-time">--:--</span>
-                            <span>▲ 15с</span>
-                            <span class="history-correct">✓ +0.0%</span>
-                            <span>+0 🪙</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="tab-content">
-                <div class="chart-container">
-                    <canvas id="price-chart"></canvas>
-                </div>
-            </div>
-
-            <div class="tab-content">
-                <div class="leaderboard">
-                    <h3>🏆 Топ игроков</h3>
-                    <div id="leaderboard-list">
-                        <div class="leaderboard-item">
-                            <div class="leaderboard-rank">1</div>
-                            <div class="leaderboard-name">Сатоши Накамото</div>
-                            <div class="leaderboard-score">2500 🪙</div>
-                        </div>
-                        <div class="leaderboard-item">
-                            <div class="leaderboard-rank">2</div>
-                            <div class="leaderboard-name">Илон Маск</div>
-                            <div class="leaderboard-score">1800 🪙</div>
-                        </div>
-                        <div class="leaderboard-item">
-                            <div class="leaderboard-rank">3</div>
-                            <div class="leaderboard-name">Вы</div>
-                            <div class="leaderboard-score">100 🪙</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </main>
-    </div>
-
-    <!-- Shop Modal -->
-    <div class="overlay" id="overlay" onclick="closeShop()"></div>
-    <div class="shop-modal" id="shop-modal">
-        <div class="shop-header">
-            <div class="shop-title">💎 Пополнить баланс</div>
-            <button class="close-btn" onclick="closeShop()">×</button>
-        </div>
-
-        <div class="payment-options">
-            <div class="payment-option" onclick="selectPayment('card')">
-                <div class="payment-icon">💳</div>
-                <div class="payment-name">Карта</div>
-            </div>
-            <div class="payment-option" onclick="selectPayment('yoomoney')">
-                <div class="payment-icon">💰</div>
-                <div class="payment-name">ЮMoney</div>
-            </div>
-            <div class="payment-option" onclick="selectPayment('qiwi')">
-                <div class="payment-icon">🥝</div>
-                <div class="payment-name">QIWI</div>
-            </div>
-            <div class="payment-option" onclick="selectPayment('crypto')">
-                <div class="payment-icon">₿</div>
-                <div class="payment-name">Крипто</div>
-            </div>
-        </div>
-
-        <h3>🎯 Выберите пакет монет:</h3>
-        <div class="pack-options">
-            <div class="pack-option" onclick="selectPack(100, 100)">
-                <div class="pack-amount">100 🪙</div>
-                <div class="pack-price">100 ₽</div>
-            </div>
-            <div class="pack-option" onclick="selectPack(500, 450)">
-                <div class="pack-amount">500 🪙</div>
-                <div class="pack-price">450 ₽</div>
-            </div>
-            <div class="pack-option" onclick="selectPack(1000, 800)">
-                <div class="pack-amount">1000 🪙</div>
-                <div class="pack-price">800 ₽</div>
-            </div>
-            <div class="pack-option" onclick="selectPack(2000, 1500)">
-                <div class="pack-amount">2000 🪙</div>
-                <div class="pack-price">1500 ₽</div>
-            </div>
-        </div>
-
-        <button class="buy-btn" id="buy-btn" onclick="processPayment()" disabled>
-            Купить выбранный пакет
-        </button>
     </div>
 
     <script>
         // Инициализация Telegram Web App
         let tg = window.Telegram.WebApp;
-        let isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-        
-        if (isIOS) {
-            document.body.classList.add('ios');
-        }
-        
         tg.expand();
         tg.enableClosingConfirmation();
 
@@ -1154,18 +713,18 @@
             accuracy: document.getElementById('accuracy'),
             upBtn: document.getElementById('up-btn'),
             downBtn: document.getElementById('down-btn'),
-            historyList: document.getElementById('history-list'),
-            leaderboardList: document.getElementById('leaderboard-list'),
             userCoins: document.getElementById('user-coins'),
             userName: document.getElementById('user-name'),
-            overlay: document.getElementById('overlay'),
-            shopModal: document.getElementById('shop-modal'),
-            buyBtn: document.getElementById('buy-btn'),
-            waitingMessage: document.getElementById('waiting-message'),
-            currencyToggle: document.getElementById('currency-toggle'),
             realtimePrice: document.getElementById('realtime-price'),
             realtimeChange: document.getElementById('realtime-change'),
-            lastUpdate: document.getElementById('last-update')
+            dailyChange: document.getElementById('daily-change'),
+            lastUpdate: document.getElementById('last-update'),
+            currencyToggle: document.getElementById('currency-toggle'),
+            visualizationTime: document.getElementById('visualization-time'),
+            priceIndicator: document.getElementById('price-indicator'),
+            miniChart: document.getElementById('mini-chart'),
+            demoMode: document.getElementById('demo-mode'),
+            tickerDemoMode: document.getElementById('ticker-demo-mode')
         };
 
         // Состояние игры
@@ -1177,119 +736,254 @@
             correctGuesses: 0,
             incorrectGuesses: 0,
             canPredict: true,
-            predictionHistory: [],
-            priceHistory: [],
             userCoins: 100,
-            currentTab: 0,
-            selectedPayment: null,
-            selectedPack: null,
-            priceChart: null,
             timerInterval: null,
             realtimeInterval: null,
+            visualizationInterval: null,
             currentPrediction: null,
             currency: 'RUB',
-            priceUpdateInterval: null,
             lastPrice: 0,
-            realtimeData: {
-                price: 0,
-                change: 0,
-                lastUpdated: null
+            priceHistory: [],
+            miniChart: null,
+            lastApiUpdate: 0,
+            apiUpdateInterval: 30000,
+            visualizationData: {
+                prices: [],
+                timestamps: [],
+                maxPoints: 60
+            },
+            isDemoMode: false,
+            demoMode: {
+                basePrice: 0,
+                trend: 0, // -1 to 1 (down to up)
+                volatility: 0.002,
+                lastChange: 0,
+                trendDuration: 0,
+                maxTrendDuration: 30
             }
         };
 
-        // API ключ CoinMarketCap
-        const CMC_API_KEY = '271f6486-53a1-4106-920a-9ddb03eedd5f';
-        const API_BASE_URL = 'http://localhost:5000'; // Измените на ваш сервер
+        // API endpoints
+        const API_URLS = {
+            RUB: 'https://api.binance.com/api/v3/ticker/price?symbol=BTCRUB',
+            USD: 'https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT',
+            '24h': {
+                RUB: 'https://api.binance.com/api/v3/ticker/24hr?symbol=BTCRUB',
+                USD: 'https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT'
+            }
+        };
 
         // Инициализация игры
         async function initGame() {
             loadUserData();
-            initPriceChart();
             setupEventListeners();
-            await fetchBitcoinPrice();
+            initMiniChart();
+            await fetchRealBitcoinPrice();
             startRealtimeUpdates();
-            startPriceUpdates();
+            startVisualizationUpdates();
             
             if (tg.initDataUnsafe?.user) {
                 const user = tg.initDataUnsafe.user;
                 elements.userName.textContent = user.first_name || 'Игрок';
-                if (user.username) {
-                    elements.userName.textContent += ` (@${user.username})`;
-                }
             }
         }
 
-        // Запуск обновления в реальном времени
-        function startRealtimeUpdates() {
-            // Обновляем каждую секунду
-            state.realtimeInterval = setInterval(updateRealtimeDisplay, 1000);
-            
-            // Первое обновление
-            updateRealtimeDisplay();
-        }
-
-        // Обновление отображения в реальном времени
-        function updateRealtimeDisplay() {
-            const now = new Date();
-            
-            // Симуляция изменения цены в реальном времени
-            const fluctuation = (Math.random() - 0.5) * 0.1; // ±0.05%
-            const newPrice = state.currentPrice * (1 + fluctuation);
-            const change = ((newPrice - state.currentPrice) / state.currentPrice * 100);
-            
-            // Обновляем тикер
-            elements.realtimePrice.textContent = formatNumber(newPrice) + (state.currency === 'RUB' ? ' ₽' : ' $');
-            elements.realtimeChange.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
-            elements.realtimeChange.className = `ticker-value ${change >= 0 ? 'ticker-up' : 'ticker-down'}`;
-            
-            // Обновляем время
-            elements.lastUpdate.textContent = now.toLocaleTimeString('ru-RU');
-            
-            // Анимация изменения цены
-            if (newPrice > state.currentPrice) {
-                elements.realtimePrice.classList.add('ticker-up');
-                setTimeout(() => elements.realtimePrice.classList.remove('ticker-up'), 500);
-            } else if (newPrice < state.currentPrice) {
-                elements.realtimePrice.classList.add('ticker-down');
-                setTimeout(() => elements.realtimePrice.classList.remove('ticker-down'), 500);
-            }
-        }
-
-        // Получение курса Биткоина
-        async function fetchBitcoinPrice() {
-            try {
-                // Пробуем получить курс через наш API
-                const response = await fetch(`${API_BASE_URL}/api/bitcoin-price`);
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.success) {
-                        updatePriceDisplay(data.price, data.change24h);
-                        return;
+        // Инициализация мини-графика
+        function initMiniChart() {
+            const ctx = elements.miniChart.getContext('2d');
+            state.miniChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Цена',
+                        data: [],
+                        borderColor: '#ff9900',
+                        backgroundColor: 'rgba(255, 153, 0, 0.1)',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false }
+                    },
+                    scales: {
+                        x: {
+                            display: false,
+                            grid: { display: false }
+                        },
+                        y: {
+                            display: false,
+                            grid: { display: false }
+                        }
+                    },
+                    animation: {
+                        duration: 0
                     }
                 }
+            });
+        }
+
+        // Получение реального курса Биткоина с fallback
+        async function fetchRealBitcoinPrice() {
+            const now = Date.now();
+            if (now - state.lastApiUpdate < state.apiUpdateInterval && !state.isDemoMode) {
+                return;
+            }
+
+            try {
+                state.lastApiUpdate = now;
                 
-                // Fallback на случай ошибки
-                console.log('Используем fallback данные');
-                const fallbackPrice = state.currency === 'RUB' ? 
-                    (9500000 + Math.random() * 100000) : 
-                    (116000 + Math.random() * 2000);
-                const fallbackChange = (Math.random() - 0.5) * 10;
+                const [priceResponse, changeResponse] = await Promise.all([
+                    fetch(API_URLS[state.currency]),
+                    fetch(API_URLS['24h'][state.currency])
+                ]);
+
+                if (!priceResponse.ok || !changeResponse.ok) {
+                    throw new Error('API недоступно');
+                }
+
+                const priceData = await priceResponse.json();
+                const changeData = await changeResponse.json();
                 
-                updatePriceDisplay(fallbackPrice, fallbackChange);
+                const price = parseFloat(priceData.price);
+                const dailyChange = parseFloat(changeData.priceChangePercent);
+                
+                // Переключаемся из demo режима если нужно
+                if (state.isDemoMode) {
+                    switchToRealMode(price, dailyChange);
+                } else {
+                    updatePriceDisplay(price, dailyChange);
+                    updateRealtimeDisplay(price, dailyChange);
+                    updateMiniChart(price);
+                }
                 
             } catch (error) {
-                console.error('Ошибка получения курса:', error);
-                // Fallback на случай ошибки
-                const fallbackPrice = state.currency === 'RUB' ? 3500000 : 42000;
-                updatePriceDisplay(fallbackPrice, 0);
+                console.warn('Binance API недоступно, используем demo режим:', error);
+                switchToDemoMode();
             }
+        }
+
+        // Переключение в demo режим
+        function switchToDemoMode() {
+            if (!state.isDemoMode) {
+                state.isDemoMode = true;
+                state.demoMode.basePrice = state.currentPrice > 0 ? state.currentPrice : 
+                    (state.currency === 'RUB' ? 3500000 : 42000);
+                state.demoMode.trend = (Math.random() - 0.5) * 2;
+                state.demoMode.trendDuration = 0;
+                
+                elements.demoMode.style.display = 'block';
+                elements.tickerDemoMode.style.display = 'block';
+                
+                console.log('🔶 Переключение в DEMO режим');
+            }
+            
+            const simulatedPrice = simulatePriceMovement();
+            const simulatedChange = (Math.random() - 0.5) * 2;
+            
+            updatePriceDisplay(simulatedPrice, simulatedChange);
+            updateRealtimeDisplay(simulatedPrice, simulatedChange);
+            updateMiniChart(simulatedPrice);
+        }
+
+        // Переключение в реальный режим
+        function switchToRealMode(price, dailyChange) {
+            state.isDemoMode = false;
+            elements.demoMode.style.display = 'none';
+            elements.tickerDemoMode.style.display = 'none';
+            
+            updatePriceDisplay(price, dailyChange);
+            updateRealtimeDisplay(price, dailyChange);
+            updateMiniChart(price);
+            
+            console.log('✅ Возврат к реальным данным');
+        }
+
+        // Умная симуляция движения цены
+        function simulatePriceMovement() {
+            if (state.demoMode.basePrice === 0) {
+                state.demoMode.basePrice = state.currency === 'RUB' ? 
+                    (3500000 + Math.random() * 100000) : 
+                    (42000 + Math.random() * 2000);
+            }
+
+            // Обновляем тренд
+            state.demoMode.trendDuration++;
+            if (state.demoMode.trendDuration > state.demoMode.maxTrendDuration) {
+                state.demoMode.trend = (Math.random() - 0.5) * 2;
+                state.demoMode.trendDuration = 0;
+                state.demoMode.volatility = 0.001 + Math.random() * 0.003;
+            }
+
+            // Базовое изменение на основе тренда
+            let change = state.demoMode.trend * state.demoMode.volatility;
+            
+            // Добавляем случайную волатильность
+            change += (Math.random() - 0.5) * state.demoMode.volatility * 0.5;
+            
+            // Корректируем тренд на основе времени
+            const timeFactor = Math.sin(Date.now() / 600000) * 0.0005;
+            change += timeFactor;
+            
+            const newPrice = state.demoMode.basePrice * (1 + change);
+            state.demoMode.basePrice = newPrice;
+            state.demoMode.lastChange = change;
+            
+            return newPrice;
+        }
+
+        // Обновление мини-графика
+        function updateMiniChart(price) {
+            const now = new Date();
+            const timeLabel = now.toLocaleTimeString('ru-RU', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+
+            state.visualizationData.prices.push(price);
+            state.visualizationData.timestamps.push(timeLabel);
+
+            if (state.visualizationData.prices.length > state.visualizationData.maxPoints) {
+                state.visualizationData.prices.shift();
+                state.visualizationData.timestamps.shift();
+            }
+
+            state.miniChart.data.labels = state.visualizationData.timestamps;
+            state.miniChart.data.datasets[0].data = state.visualizationData.prices;
+            state.miniChart.update('none');
+
+            updatePriceIndicator(price);
+        }
+
+        // Обновление индикатора цены
+        function updatePriceIndicator(price) {
+            if (state.visualizationData.prices.length < 2) return;
+
+            const prevPrice = state.visualizationData.prices[state.visualizationData.prices.length - 2];
+            const change = ((price - prevPrice) / prevPrice) * 100;
+            
+            elements.priceIndicator.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
+            elements.priceIndicator.className = `price-indicator ${change >= 0 ? 'price-up' : 'price-down'}`;
+        }
+
+        // Расчет изменения цены
+        function calculatePriceChange(newPrice) {
+            if (state.lastPrice === 0) return 0;
+            return ((newPrice - state.lastPrice) / state.lastPrice) * 100;
         }
 
         // Обновление отображения цены
-        function updatePriceDisplay(price, change24h) {
-            const oldPrice = state.currentPrice;
-            state.lastPrice = oldPrice;
+        function updatePriceDisplay(price, change) {
+            const oldPrice = state.lastPrice;
+            state.lastPrice = state.currentPrice;
             state.currentPrice = price;
             
             const formattedPrice = state.currency === 'RUB' ?
@@ -1298,21 +992,56 @@
             
             elements.currentPrice.innerHTML = formattedPrice;
             
-            // Анимация изменения цены
             if (price > oldPrice && oldPrice > 0) {
-                elements.currentPrice.classList.add('price-up');
-                setTimeout(() => elements.currentPrice.classList.remove('price-up'), 500);
+                animatePriceChange(true);
             } else if (price < oldPrice && oldPrice > 0) {
-                elements.currentPrice.classList.add('price-down');
-                setTimeout(() => elements.currentPrice.classList.remove('price-down'), 500);
+                animatePriceChange(false);
+            }
+
+            if (change !== undefined) {
+                const changeElement = elements.priceChange;
+                changeElement.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
+                changeElement.className = `price-change ${change >= 0 ? 'positive' : 'negative'}`;
+            }
+        }
+
+        // Обновление realtime дисплея
+        function updateRealtimeDisplay(price, dailyChange) {
+            const formattedPrice = state.currency === 'RUB' ?
+                `${formatNumber(price)} ₽` :
+                `$${formatNumber(price)}`;
+            
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('ru-RU', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+
+            elements.realtimePrice.textContent = formattedPrice;
+            
+            if (state.isDemoMode) {
+                // Для demo режима показываем simulated change
+                const change = state.demoMode.lastChange * 100;
+                elements.realtimeChange.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
+                elements.realtimeChange.className = `ticker-value ${change >= 0 ? 'ticker-up' : 'ticker-down'}`;
+                elements.dailyChange.textContent = '--';
+            } else {
+                elements.realtimeChange.textContent = `${dailyChange >= 0 ? '+' : ''}${dailyChange.toFixed(2)}%`;
+                elements.realtimeChange.className = `ticker-value ${dailyChange >= 0 ? 'ticker-up' : 'ticker-down'}`;
+                elements.dailyChange.textContent = `${dailyChange >= 0 ? '+' : ''}${dailyChange.toFixed(2)}%`;
             }
             
-            // Обновление изменения цены
-            if (change24h !== undefined) {
-                const changeElement = elements.priceChange;
-                changeElement.textContent = `${change24h >= 0 ? '+' : ''}${change24h.toFixed(2)}% (24ч)`;
-                changeElement.className = `price-change ${change24h >= 0 ? 'positive' : 'negative'}`;
-            }
+            elements.lastUpdate.textContent = timeString;
+            elements.visualizationTime.textContent = timeString;
+        }
+
+        // Анимация изменения цены
+        function animatePriceChange(isUp) {
+            elements.currentPrice.classList.add(isUp ? 'price-up-animation' : 'price-down-animation');
+            setTimeout(() => {
+                elements.currentPrice.classList.remove('price-up-animation', 'price-down-animation');
+            }, 1000);
         }
 
         // Форматирование чисел
@@ -1329,13 +1058,35 @@
             }
         }
 
-        // Запуск регулярного обновления цены
-        function startPriceUpdates() {
-            // Обновляем каждые 30 секунд
-            state.priceUpdateInterval = setInterval(async () => {
-                if (!state.canPredict) return;
-                await fetchBitcoinPrice();
-            }, 30000);
+        // Запуск realtime обновлений
+        function startRealtimeUpdates() {
+            state.realtimeInterval = setInterval(async () => {
+                if (state.isDemoMode) {
+                    // В demo режиме обновляем каждую секунду
+                    const simulatedPrice = simulatePriceMovement();
+                    const simulatedChange = (Math.random() - 0.5) * 2;
+                    updatePriceDisplay(simulatedPrice, simulatedChange);
+                    updateRealtimeDisplay(simulatedPrice, simulatedChange);
+                    updateMiniChart(simulatedPrice);
+                } else {
+                    // В реальном режиме проверяем API каждые 5 секунд
+                    if (Date.now() - state.lastApiUpdate >= 5000) {
+                        await fetchRealBitcoinPrice();
+                    }
+                }
+            }, 1000);
+        }
+
+        // Запуск обновлений визуализации
+        function startVisualizationUpdates() {
+            state.visualizationInterval = setInterval(() => {
+                const currentTime = new Date().toLocaleTimeString('ru-RU', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+                elements.visualizationTime.textContent = currentTime;
+            }, 1000);
         }
 
         // Переключение валюты
@@ -1343,154 +1094,27 @@
             state.currency = state.currency === 'RUB' ? 'USD' : 'RUB';
             elements.currencyToggle.classList.toggle('usd', state.currency === 'USD');
             
-            // Перезагружаем цену в новой валюте
-            fetchBitcoinPrice();
+            // Очищаем историю при смене валюты
+            state.visualizationData.prices = [];
+            state.visualizationData.timestamps = [];
+            state.demoMode.basePrice = 0; // Сброс базовой цены для demo режима
+            
+            fetchRealBitcoinPrice();
             saveUserData();
         }
 
         // Выбор времени прогноза
         function selectTime(seconds) {
             state.predictionTime = seconds;
+            state.timeLeft = seconds;
             
-            document.querySelectorAll('.time-option').forEach(option => {
-                option.classList.toggle('active', parseInt(option.dataset.time) === seconds);
+            document.querySelectorAll('.time-option').forEach((option, index) => {
+                const optionTime = [15, 30, 60][index];
+                option.classList.toggle('active', optionTime === seconds);
             });
             
-            updateWaitingMessage();
+            updateTimerDisplay();
             saveUserData();
-        }
-
-        function updateWaitingMessage() {
-            elements.waitingMessage.textContent = `🎯 Выберите вариант прогноза (${state.predictionTime} сек)`;
-        }
-
-        // Загрузка данных пользователя
-        function loadUserData() {
-            const savedData = localStorage.getItem('bitcoin_prediction_user');
-            if (savedData) {
-                const userData = JSON.parse(savedData);
-                state.correctGuesses = userData.correctGuesses || 0;
-                state.incorrectGuesses = userData.incorrectGuesses || 0;
-                state.predictionHistory = userData.predictionHistory || [];
-                state.userCoins = userData.userCoins || 100;
-                state.predictionTime = userData.predictionTime || 15;
-                state.currency = userData.currency || 'RUB';
-                
-                selectTime(state.predictionTime);
-                elements.currencyToggle.classList.toggle('usd', state.currency === 'USD');
-                updateUI();
-            }
-        }
-
-        // Сохранение данных пользователя
-        function saveUserData() {
-            const userData = {
-                correctGuesses: state.correctGuesses,
-                incorrectGuesses: state.incorrectGuesses,
-                predictionHistory: state.predictionHistory,
-                userCoins: state.userCoins,
-                predictionTime: state.predictionTime,
-                currency: state.currency
-            };
-            localStorage.setItem('bitcoin_prediction_user', JSON.stringify(userData));
-        }
-
-        // Инициализация графика цен
-        function initPriceChart() {
-            const ctx = document.getElementById('price-chart').getContext('2d');
-            const now = Date.now();
-            
-            // Генерация демо-данных
-            for (let i = 24; i >= 0; i--) {
-                const time = now - (i * 3600000);
-                const price = state.currency === 'RUB' ? 
-                    (3500000 + Math.random() * 500000) : 
-                    (40000 + Math.random() * 5000);
-                state.priceHistory.push({ time, price });
-            }
-            
-            state.priceChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: state.priceHistory.map((_, i) => {
-                        const date = new Date(now - (24 - i) * 3600000);
-                        return date.getHours() + ':00';
-                    }),
-                    datasets: [{
-                        label: state.currency === 'RUB' ? 'BTC/RUB' : 'BTC/USD',
-                        data: state.priceHistory.map(item => item.price),
-                        borderColor: '#ff9900',
-                        backgroundColor: 'rgba(255, 153, 0, 0.1)',
-                        borderWidth: 3,
-                        pointRadius: 0,
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        title: {
-                            display: true,
-                            text: `Изменение цены за 24 часа (${state.currency})`,
-                            color: 'white',
-                            font: { size: 14 }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            ticks: { color: 'rgba(255, 255, 255, 0.7)', maxRotation: 0 },
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
-                        },
-                        y: {
-                            ticks: { 
-                                color: 'rgba(255, 255, 255, 0.7)',
-                                callback: function(value) {
-                                    return state.currency === 'RUB' ? 
-                                        (value / 1000000).toFixed(1) + 'M' : 
-                                        (value / 1000).toFixed(0) + 'K';
-                                }
-                            },
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
-                        }
-                    }
-                }
-            });
-        }
-
-        // Настройка обработчиков событий
-        function setupEventListeners() {
-            const tabsContainer = document.querySelector('.tabs');
-            let startX = 0;
-            
-            tabsContainer.addEventListener('touchstart', (e) => {
-                startX = e.touches[0].clientX;
-            }, { passive: true });
-            
-            tabsContainer.addEventListener('touchend', (e) => {
-                const endX = e.changedTouches[0].clientX;
-                const diffX = endX - startX;
-                
-                if (Math.abs(diffX) > 50) {
-                    if (diffX > 0 && state.currentTab > 0) {
-                        switchTab(state.currentTab - 1);
-                    } else if (diffX < 0 && state.currentTab < 2) {
-                        switchTab(state.currentTab + 1);
-                    }
-                }
-            }, { passive: true });
-            
-            document.querySelectorAll('button').forEach(btn => {
-                btn.addEventListener('touchstart', function() {
-                    this.style.opacity = '0.8';
-                }, { passive: true });
-                
-                btn.addEventListener('touchend', function() {
-                    this.style.opacity = '';
-                }, { passive: true });
-            });
         }
 
         // Прогноз игрока
@@ -1501,7 +1125,6 @@
             state.currentPrediction = direction;
             elements.upBtn.disabled = true;
             elements.downBtn.disabled = true;
-            elements.waitingMessage.style.display = 'none';
             
             startGameTimer();
         }
@@ -1510,7 +1133,7 @@
         function startGameTimer() {
             state.timeLeft = state.predictionTime;
             elements.timer.classList.add('active');
-            updateTimer();
+            updateTimerDisplay();
             
             if (state.timerInterval) {
                 clearInterval(state.timerInterval);
@@ -1518,7 +1141,7 @@
             
             state.timerInterval = setInterval(() => {
                 state.timeLeft--;
-                updateTimer();
+                updateTimerDisplay();
                 
                 if (state.timeLeft <= 0) {
                     clearInterval(state.timerInterval);
@@ -1527,40 +1150,28 @@
             }, 1000);
         }
 
-        function updateTimer() {
-            let timerText = `⏱️ До обновления: ${state.timeLeft} сек`;
+        function updateTimerDisplay() {
+            elements.timer.textContent = `⏱️ До обновления: ${state.timeLeft} сек`;
             
             if (state.timeLeft <= 5) {
                 elements.timer.classList.add('warning');
-                timerText = `⏰ Срочно! ${state.timeLeft} сек`;
             } else {
                 elements.timer.classList.remove('warning');
             }
-            
-            elements.timer.textContent = timerText;
         }
 
         function processPredictionResult() {
-            // Генерация новой цены на основе реальной волатильности
-            const volatility = state.predictionTime === 15 ? 0.8 : 
-                             state.predictionTime === 30 ? 0.5 : 0.3;
-            
-            // Берем за основу последнюю реальную цену
-            const basePrice = state.lastPrice || state.currentPrice;
-            const changePercent = (Math.random() - 0.5) * volatility * 8;
-            state.nextPrice = basePrice * (1 + changePercent / 100);
-            
-            const actualDirection = state.nextPrice > basePrice ? 'up' : 'down';
+            const actualPrice = state.currentPrice;
+            const basePrice = state.lastPrice;
+            const actualDirection = actualPrice > basePrice ? 'up' : 'down';
             const isCorrect = state.currentPrediction === actualDirection;
             
-            // Расчет награды
             const baseReward = state.predictionTime === 15 ? 30 : 
                              state.predictionTime === 30 ? 20 : 15;
             
             const basePenalty = state.predictionTime === 15 ? 15 : 
                               state.predictionTime === 30 ? 10 : 8;
             
-            // Обновление счета
             if (isCorrect) {
                 state.correctGuesses++;
                 state.userCoins += baseReward;
@@ -1569,66 +1180,39 @@
                 state.userCoins -= basePenalty;
             }
             
-            // Сохранение в историю
-            const prediction = {
-                time: Date.now(),
-                userPrediction: state.currentPrediction,
-                actualDirection,
-                isCorrect,
-                oldPrice: basePrice,
-                newPrice: state.nextPrice,
-                reward: isCorrect ? baseReward : -basePenalty,
-                predictionTime: state.predictionTime,
-                currency: state.currency
-            };
-            
-            state.predictionHistory.unshift(prediction);
-            if (state.predictionHistory.length > 10) {
-                state.predictionHistory.pop();
-            }
-            
             updateUI();
             saveUserData();
-            showResult();
+            showResult(isCorrect, actualPrice, basePrice);
         }
 
-        function showResult() {
-            const lastPrediction = state.predictionHistory[0];
-            if (!lastPrediction) return;
-            
-            const change = ((lastPrediction.newPrice - lastPrediction.oldPrice) / lastPrediction.oldPrice * 100).toFixed(2);
+        function showResult(isCorrect, actualPrice, basePrice) {
+            const change = ((actualPrice - basePrice) / basePrice * 100).toFixed(2);
             const changeText = change >= 0 ? `+${change}%` : `${change}%`;
+            const currencySymbol = state.currency === 'RUB' ? '₽' : '$';
+            const reward = state.predictionTime === 15 ? 30 : state.predictionTime === 30 ? 20 : 15;
+            const penalty = state.predictionTime === 15 ? 15 : state.predictionTime === 30 ? 10 : 8;
             
-            const currencySymbol = lastPrediction.currency === 'RUB' ? '₽' : '$';
-            const formattedOldPrice = formatNumber(lastPrediction.oldPrice);
-            const formattedNewPrice = formatNumber(lastPrediction.newPrice);
-            
-            elements.result.className = `result ${lastPrediction.isCorrect ? 'win' : 'lose'}`;
+            elements.result.className = `result ${isCorrect ? 'win' : 'lose'}`;
             elements.result.innerHTML = `
-                <h3>${lastPrediction.isCorrect ? '🎉 Правильно!' : '❌ Неправильно'}</h3>
-                <p>Время: <strong>${lastPrediction.predictionTime} сек</strong></p>
-                <p>Ваш прогноз: <strong>${lastPrediction.userPrediction === 'up' ? 'рост' : 'падение'}</strong></p>
-                <p>Результат: <strong>${lastPrediction.actualDirection === 'up' ? 'рост' : 'падение'} (${changeText})</strong></p>
-                <p>Старая цена: <strong>${formattedOldPrice} ${currencySymbol}</strong></p>
-                <p>Новая цена: <strong>${formattedNewPrice} ${currencySymbol}</strong></p>
-                <p>${lastPrediction.reward > 0 ? 'Выигрыш' : 'Проигрыш'}: <strong>${Math.abs(lastPrediction.reward)} 🪙</strong></p>
+                <h3>${isCorrect ? '🎉 Правильно!' : '❌ Неправильно'}</h3>
+                <p>Ваш прогноз: <strong>${state.currentPrediction === 'up' ? 'рост' : 'падение'}</strong></p>
+                <p>Результат: <strong>${actualPrice > basePrice ? 'рост' : 'падение'} (${changeText})</strong></p>
+                <p>${isCorrect ? 'Выигрыш' : 'Проигрыш'}: <strong>${isCorrect ? '+' + reward : '-' + penalty} 🪙</strong></p>
             `;
             elements.result.style.display = 'block';
             
-            elements.timer.classList.remove('active');
-            
             setTimeout(() => {
-                state.currentPrice = state.nextPrice;
                 state.canPredict = true;
                 state.currentPrediction = null;
                 elements.upBtn.disabled = false;
                 elements.downBtn.disabled = false;
                 elements.result.style.display = 'none';
-                elements.waitingMessage.style.display = 'block';
-                updateWaitingMessage();
+                elements.timer.classList.remove('active');
                 
-                // Обновляем реальный курс после раунда
-                fetchBitcoinPrice();
+                // Обновляем курс после раунда
+                if (!state.isDemoMode) {
+                    fetchRealBitcoinPrice();
+                }
             }, 3000);
         }
 
@@ -1641,101 +1225,56 @@
             const total = state.correctGuesses + state.incorrectGuesses;
             const accuracy = total > 0 ? Math.round((state.correctGuesses / total) * 100) : 0;
             elements.accuracy.textContent = `${accuracy}%`;
-            
-            updateHistory();
         }
 
-        function updateHistory() {
-            elements.historyList.innerHTML = state.predictionHistory.map(pred => {
-                const date = new Date(pred.time);
-                const timeString = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                const change = ((pred.newPrice - pred.oldPrice) / pred.oldPrice * 100).toFixed(1);
-                const changeText = change >= 0 ? `+${change}%` : `${change}%`;
+        // Загрузка и сохранение данных
+        function loadUserData() {
+            const savedData = localStorage.getItem('bitcoin_prediction_user');
+            if (savedData) {
+                const userData = JSON.parse(savedData);
+                state.correctGuesses = userData.correctGuesses || 0;
+                state.incorrectGuesses = userData.incorrectGuesses || 0;
+                state.userCoins = userData.userCoins || 100;
+                state.predictionTime = userData.predictionTime || 15;
+                state.currency = userData.currency || 'RUB';
                 
-                return `
-                    <div class="history-item">
-                        <span class="history-time">${timeString}</span>
-                        <span>${pred.userPrediction === 'up' ? '▲' : '▼'} ${pred.predictionTime}с</span>
-                        <span class="${pred.isCorrect ? 'history-correct' : 'history-incorrect'}">
-                            ${pred.isCorrect ? '✓' : '✗'} ${changeText}
-                        </span>
-                        <span>${pred.reward > 0 ? '+' : ''}${pred.reward} 🪙</span>
-                    </div>
-                `;
-            }).join('');
+                selectTime(state.predictionTime);
+                elements.currencyToggle.classList.toggle('usd', state.currency === 'USD');
+                updateUI();
+            }
         }
 
-        // Переключение вкладок
-        function switchTab(tabIndex) {
-            document.querySelectorAll('.tab').forEach((tab, index) => {
-                tab.classList.toggle('active', index === tabIndex);
+        function saveUserData() {
+            const userData = {
+                correctGuesses: state.correctGuesses,
+                incorrectGuesses: state.incorrectGuesses,
+                userCoins: state.userCoins,
+                predictionTime: state.predictionTime,
+                currency: state.currency
+            };
+            localStorage.setItem('bitcoin_prediction_user', JSON.stringify(userData));
+        }
+
+        // Обработчики событий
+        function setupEventListeners() {
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    clearInterval(state.realtimeInterval);
+                    clearInterval(state.visualizationInterval);
+                } else {
+                    startRealtimeUpdates();
+                    startVisualizationUpdates();
+                    // При возвращении на вкладку сразу обновляем данные
+                    if (!state.isDemoMode) {
+                        fetchRealBitcoinPrice();
+                    }
+                }
             });
-            
-            document.querySelectorAll('.tab-content').forEach((content, index) => {
-                content.classList.toggle('active', index === tabIndex);
-            });
-            
-            state.currentTab = tabIndex;
-        }
-
-        // Магазин
-        function openShop() {
-            elements.overlay.style.display = 'block';
-            elements.shopModal.style.display = 'block';
-            setTimeout(() => elements.shopModal.classList.add('open'), 10);
-        }
-
-        function closeShop() {
-            elements.shopModal.classList.remove('open');
-            setTimeout(() => {
-                elements.shopModal.style.display = 'none';
-                elements.overlay.style.display = 'none';
-            }, 300);
-        }
-
-        function selectPayment(method) {
-            state.selectedPayment = method;
-            document.querySelectorAll('.payment-option').forEach(opt => {
-                opt.classList.toggle('selected', opt.onclick.toString().includes(`'${method}'`));
-            });
-            checkBuyButton();
-        }
-
-        function selectPack(amount, price) {
-            state.selectedPack = { amount, price };
-            document.querySelectorAll('.pack-option').forEach(opt => {
-                opt.classList.toggle('selected', opt.onclick.toString().includes(`${amount}, ${price}`));
-            });
-            checkBuyButton();
-        }
-
-        function checkBuyButton() {
-            elements.buyBtn.disabled = !(state.selectedPayment && state.selectedPack);
-        }
-
-        function processPayment() {
-            if (!state.selectedPayment || !state.selectedPack) return;
-            
-            elements.buyBtn.textContent = 'Обработка...';
-            elements.buyBtn.disabled = true;
-            
-            setTimeout(() => {
-                state.userCoins += state.selectedPack.amount;
-                elements.userCoins.textContent = state.userCoins;
-                elements.buyBtn.textContent = 'Успешно!';
-                
-                setTimeout(() => {
-                    closeShop();
-                    elements.buyBtn.textContent = 'Купить выбранный пакет';
-                    saveUserData();
-                }, 1000);
-            }, 2000);
         }
 
         // Запуск игры
         document.addEventListener('DOMContentLoaded', initGame);
-        
-        document.addEventListener('dblclick', (e) => e.preventDefault(), { passive: false });
     </script>
 </body>
 </html>
+           
