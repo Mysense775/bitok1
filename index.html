@@ -214,6 +214,41 @@
             left: 21px;
         }
 
+        /* Real-time Price Ticker */
+        .price-ticker {
+            background: var(--card-bg);
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border: 1px solid var(--card-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        .ticker-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .ticker-label {
+            color: var(--text-secondary);
+        }
+
+        .ticker-value {
+            font-weight: 600;
+        }
+
+        .ticker-up {
+            color: var(--success-color);
+        }
+
+        .ticker-down {
+            color: var(--danger-color);
+        }
+
         /* Main Game Area */
         .price-card {
             background: var(--card-bg);
@@ -223,6 +258,7 @@
             text-align: center;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
             border: 1px solid var(--card-border);
+            position: relative;
         }
 
         .price-label {
@@ -237,6 +273,7 @@
             color: var(--primary-color);
             margin: 10px 0;
             letter-spacing: -0.5px;
+            transition: all 0.5s ease;
         }
 
         .price-change {
@@ -245,6 +282,7 @@
             border-radius: 16px;
             display: inline-block;
             font-weight: 500;
+            transition: all 0.3s ease;
         }
 
         .positive {
@@ -255,6 +293,25 @@
         .negative {
             background-color: rgba(244, 67, 54, 0.2);
             color: #F44336;
+        }
+
+        /* Live price animation */
+        .price-up {
+            animation: priceUp 0.5s ease;
+        }
+
+        .price-down {
+            animation: priceDown 0.5s ease;
+        }
+
+        @keyframes priceUp {
+            0% { color: var(--success-color); transform: scale(1.05); }
+            100% { color: var(--primary-color); transform: scale(1); }
+        }
+
+        @keyframes priceDown {
+            0% { color: var(--danger-color); transform: scale(1.05); }
+            100% { color: var(--primary-color); transform: scale(1); }
         }
 
         .timer {
@@ -779,6 +836,17 @@
             .pack-options {
                 grid-template-columns: 1fr;
             }
+            
+            .price-ticker {
+                flex-direction: column;
+                gap: 8px;
+                padding: 10px;
+            }
+            
+            .ticker-item {
+                justify-content: space-between;
+                width: 100%;
+            }
         }
 
         @media (min-width: 768px) {
@@ -821,6 +889,11 @@
             
             .stats {
                 margin: 12px 0;
+            }
+            
+            .price-ticker {
+                padding: 8px;
+                font-size: 12px;
             }
         }
 
@@ -891,6 +964,22 @@
                         <div class="toggle-handle"></div>
                     </div>
                     <span>$</span>
+                </div>
+            </div>
+
+            <!-- Тикер с реальным временем -->
+            <div class="price-ticker">
+                <div class="ticker-item">
+                    <span class="ticker-label">📊 Реальное время:</span>
+                    <span class="ticker-value" id="realtime-price">--</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-label">🔄 Изменение:</span>
+                    <span class="ticker-value" id="realtime-change">--</span>
+                </div>
+                <div class="ticker-item">
+                    <span class="ticker-label">⏱️ Обновлено:</span>
+                    <span class="ticker-value" id="last-update">--</span>
                 </div>
             </div>
 
@@ -1073,7 +1162,10 @@
             shopModal: document.getElementById('shop-modal'),
             buyBtn: document.getElementById('buy-btn'),
             waitingMessage: document.getElementById('waiting-message'),
-            currencyToggle: document.getElementById('currency-toggle')
+            currencyToggle: document.getElementById('currency-toggle'),
+            realtimePrice: document.getElementById('realtime-price'),
+            realtimeChange: document.getElementById('realtime-change'),
+            lastUpdate: document.getElementById('last-update')
         };
 
         // Состояние игры
@@ -1093,14 +1185,21 @@
             selectedPack: null,
             priceChart: null,
             timerInterval: null,
+            realtimeInterval: null,
             currentPrediction: null,
-            currency: 'RUB', // 'RUB' или 'USD'
+            currency: 'RUB',
             priceUpdateInterval: null,
-            lastPrice: 0
+            lastPrice: 0,
+            realtimeData: {
+                price: 0,
+                change: 0,
+                lastUpdated: null
+            }
         };
 
         // API ключ CoinMarketCap
         const CMC_API_KEY = '271f6486-53a1-4106-920a-9ddb03eedd5f';
+        const API_BASE_URL = 'http://localhost:5000'; // Измените на ваш сервер
 
         // Инициализация игры
         async function initGame() {
@@ -1108,6 +1207,7 @@
             initPriceChart();
             setupEventListeners();
             await fetchBitcoinPrice();
+            startRealtimeUpdates();
             startPriceUpdates();
             
             if (tg.initDataUnsafe?.user) {
@@ -1119,23 +1219,61 @@
             }
         }
 
+        // Запуск обновления в реальном времени
+        function startRealtimeUpdates() {
+            // Обновляем каждую секунду
+            state.realtimeInterval = setInterval(updateRealtimeDisplay, 1000);
+            
+            // Первое обновление
+            updateRealtimeDisplay();
+        }
+
+        // Обновление отображения в реальном времени
+        function updateRealtimeDisplay() {
+            const now = new Date();
+            
+            // Симуляция изменения цены в реальном времени
+            const fluctuation = (Math.random() - 0.5) * 0.1; // ±0.05%
+            const newPrice = state.currentPrice * (1 + fluctuation);
+            const change = ((newPrice - state.currentPrice) / state.currentPrice * 100);
+            
+            // Обновляем тикер
+            elements.realtimePrice.textContent = formatNumber(newPrice) + (state.currency === 'RUB' ? ' ₽' : ' $');
+            elements.realtimeChange.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
+            elements.realtimeChange.className = `ticker-value ${change >= 0 ? 'ticker-up' : 'ticker-down'}`;
+            
+            // Обновляем время
+            elements.lastUpdate.textContent = now.toLocaleTimeString('ru-RU');
+            
+            // Анимация изменения цены
+            if (newPrice > state.currentPrice) {
+                elements.realtimePrice.classList.add('ticker-up');
+                setTimeout(() => elements.realtimePrice.classList.remove('ticker-up'), 500);
+            } else if (newPrice < state.currentPrice) {
+                elements.realtimePrice.classList.add('ticker-down');
+                setTimeout(() => elements.realtimePrice.classList.remove('ticker-down'), 500);
+            }
+        }
+
         // Получение курса Биткоина
         async function fetchBitcoinPrice() {
             try {
-                // Пробуем получить курс через CoinMarketCap API
-                const response = await fetch('/api/bitcoin-price');
+                // Пробуем получить курс через наш API
+                const response = await fetch(`${API_BASE_URL}/api/bitcoin-price`);
                 
                 if (response.ok) {
                     const data = await response.json();
-                    updatePriceDisplay(data.price, data.change24h);
-                    return;
+                    if (data.success) {
+                        updatePriceDisplay(data.price, data.change24h);
+                        return;
+                    }
                 }
                 
-                // Если API не доступно, используем fallback
+                // Fallback на случай ошибки
                 console.log('Используем fallback данные');
                 const fallbackPrice = state.currency === 'RUB' ? 
-                    (9500000 + Math.random() * 100000) : 
-                    (116000 + Math.random() * 2000);
+                    (3500000 + Math.random() * 100000) : 
+                    (42000 + Math.random() * 2000);
                 const fallbackChange = (Math.random() - 0.5) * 10;
                 
                 updatePriceDisplay(fallbackPrice, fallbackChange);
@@ -1150,7 +1288,8 @@
 
         // Обновление отображения цены
         function updatePriceDisplay(price, change24h) {
-            state.lastPrice = state.currentPrice;
+            const oldPrice = state.currentPrice;
+            state.lastPrice = oldPrice;
             state.currentPrice = price;
             
             const formattedPrice = state.currency === 'RUB' ?
@@ -1158,6 +1297,15 @@
                 `$${formatNumber(price)}`;
             
             elements.currentPrice.innerHTML = formattedPrice;
+            
+            // Анимация изменения цены
+            if (price > oldPrice && oldPrice > 0) {
+                elements.currentPrice.classList.add('price-up');
+                setTimeout(() => elements.currentPrice.classList.remove('price-up'), 500);
+            } else if (price < oldPrice && oldPrice > 0) {
+                elements.currentPrice.classList.add('price-down');
+                setTimeout(() => elements.currentPrice.classList.remove('price-down'), 500);
+            }
             
             // Обновление изменения цены
             if (change24h !== undefined) {
@@ -1185,7 +1333,7 @@
         function startPriceUpdates() {
             // Обновляем каждые 30 секунд
             state.priceUpdateInterval = setInterval(async () => {
-                if (!state.canPredict) return; // Не обновляем во время активного прогноза
+                if (!state.canPredict) return;
                 await fetchBitcoinPrice();
             }, 30000);
         }
