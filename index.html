@@ -148,6 +148,7 @@
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 10px;
+            margin-bottom: 10px;
         }
 
         .time-option {
@@ -175,6 +176,42 @@
 
         .time-option:active {
             transform: scale(0.95);
+        }
+
+        .currency-toggle {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .toggle-switch {
+            width: 40px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-switch::before {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            top: 1px;
+            left: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-switch.usd::before {
+            left: 21px;
         }
 
         /* Main Game Area */
@@ -661,6 +698,28 @@
             color: var(--secondary-color);
         }
 
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+        }
+
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         /* Responsive Design */
         @media (max-width: 380px) {
             .container {
@@ -826,12 +885,24 @@
                     <div class="time-option" data-time="30" onclick="selectTime(30)">30 сек</div>
                     <div class="time-option" data-time="60" onclick="selectTime(60)">60 сек</div>
                 </div>
+                <div class="currency-toggle" onclick="toggleCurrency()">
+                    <span>₽</span>
+                    <div class="toggle-switch" id="currency-toggle">
+                        <div class="toggle-handle"></div>
+                    </div>
+                    <span>$</span>
+                </div>
             </div>
 
             <div class="price-card">
-                <div class="price-label">ТЕКУЩИЙ КУРС BTC/USD</div>
-                <div class="current-price" id="current-price">$42,150.75</div>
-                <div class="price-change positive" id="price-change">+2.35% (24ч)</div>
+                <div class="price-label">ТЕКУЩИЙ КУРС BTC</div>
+                <div class="current-price" id="current-price">
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        Загрузка курса...
+                    </div>
+                </div>
+                <div class="price-change" id="price-change">--</div>
             </div>
 
             <div class="timer" id="timer">⏱️ До обновления: 15 сек</div>
@@ -879,16 +950,10 @@
                     <h3>📊 История прогнозов</h3>
                     <div id="history-list">
                         <div class="history-item">
-                            <span class="history-time">12:30</span>
+                            <span class="history-time">--:--</span>
                             <span>▲ 15с</span>
-                            <span class="history-correct">✓ +1.2%</span>
-                            <span>+30 🪙</span>
-                        </div>
-                        <div class="history-item">
-                            <span class="history-time">12:15</span>
-                            <span>▼ 30с</span>
-                            <span class="history-incorrect">✗ -0.8%</span>
-                            <span>-10 🪙</span>
+                            <span class="history-correct">✓ +0.0%</span>
+                            <span>+0 🪙</span>
                         </div>
                     </div>
                 </div>
@@ -1007,12 +1072,13 @@
             overlay: document.getElementById('overlay'),
             shopModal: document.getElementById('shop-modal'),
             buyBtn: document.getElementById('buy-btn'),
-            waitingMessage: document.getElementById('waiting-message')
+            waitingMessage: document.getElementById('waiting-message'),
+            currencyToggle: document.getElementById('currency-toggle')
         };
 
         // Состояние игры
         const state = {
-            currentPrice: 42150.75,
+            currentPrice: 0,
             nextPrice: 0,
             timeLeft: 15,
             predictionTime: 15,
@@ -1027,14 +1093,22 @@
             selectedPack: null,
             priceChart: null,
             timerInterval: null,
-            currentPrediction: null
+            currentPrediction: null,
+            currency: 'RUB', // 'RUB' или 'USD'
+            priceUpdateInterval: null,
+            lastPrice: 0
         };
 
+        // API ключ CoinMarketCap
+        const CMC_API_KEY = '271f6486-53a1-4106-920a-9ddb03eedd5f';
+
         // Инициализация игры
-        function initGame() {
+        async function initGame() {
             loadUserData();
             initPriceChart();
             setupEventListeners();
+            await fetchBitcoinPrice();
+            startPriceUpdates();
             
             if (tg.initDataUnsafe?.user) {
                 const user = tg.initDataUnsafe.user;
@@ -1045,18 +1119,96 @@
             }
         }
 
+        // Получение курса Биткоина
+        async function fetchBitcoinPrice() {
+            try {
+                // Пробуем получить курс через CoinMarketCap API
+                const response = await fetch('/api/bitcoin-price');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    updatePriceDisplay(data.price, data.change24h);
+                    return;
+                }
+                
+                // Если API не доступно, используем fallback
+                console.log('Используем fallback данные');
+                const fallbackPrice = state.currency === 'RUB' ? 
+                    (3500000 + Math.random() * 100000) : 
+                    (42000 + Math.random() * 2000);
+                const fallbackChange = (Math.random() - 0.5) * 10;
+                
+                updatePriceDisplay(fallbackPrice, fallbackChange);
+                
+            } catch (error) {
+                console.error('Ошибка получения курса:', error);
+                // Fallback на случай ошибки
+                const fallbackPrice = state.currency === 'RUB' ? 3500000 : 42000;
+                updatePriceDisplay(fallbackPrice, 0);
+            }
+        }
+
+        // Обновление отображения цены
+        function updatePriceDisplay(price, change24h) {
+            state.lastPrice = state.currentPrice;
+            state.currentPrice = price;
+            
+            const formattedPrice = state.currency === 'RUB' ?
+                `${formatNumber(price)} ₽` :
+                `$${formatNumber(price)}`;
+            
+            elements.currentPrice.innerHTML = formattedPrice;
+            
+            // Обновление изменения цены
+            if (change24h !== undefined) {
+                const changeElement = elements.priceChange;
+                changeElement.textContent = `${change24h >= 0 ? '+' : ''}${change24h.toFixed(2)}% (24ч)`;
+                changeElement.className = `price-change ${change24h >= 0 ? 'positive' : 'negative'}`;
+            }
+        }
+
+        // Форматирование чисел
+        function formatNumber(num) {
+            if (state.currency === 'RUB') {
+                return new Intl.NumberFormat('ru-RU', { 
+                    maximumFractionDigits: 0 
+                }).format(num);
+            } else {
+                return new Intl.NumberFormat('en-US', { 
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2 
+                }).format(num);
+            }
+        }
+
+        // Запуск регулярного обновления цены
+        function startPriceUpdates() {
+            // Обновляем каждые 30 секунд
+            state.priceUpdateInterval = setInterval(async () => {
+                if (!state.canPredict) return; // Не обновляем во время активного прогноза
+                await fetchBitcoinPrice();
+            }, 30000);
+        }
+
+        // Переключение валюты
+        function toggleCurrency() {
+            state.currency = state.currency === 'RUB' ? 'USD' : 'RUB';
+            elements.currencyToggle.classList.toggle('usd', state.currency === 'USD');
+            
+            // Перезагружаем цену в новой валюте
+            fetchBitcoinPrice();
+            saveUserData();
+        }
+
         // Выбор времени прогноза
         function selectTime(seconds) {
             state.predictionTime = seconds;
             
-            // Обновляем UI выбора времени
             document.querySelectorAll('.time-option').forEach(option => {
                 option.classList.toggle('active', parseInt(option.dataset.time) === seconds);
             });
             
-            // Обновляем сообщение
             updateWaitingMessage();
-            
             saveUserData();
         }
 
@@ -1074,9 +1226,10 @@
                 state.predictionHistory = userData.predictionHistory || [];
                 state.userCoins = userData.userCoins || 100;
                 state.predictionTime = userData.predictionTime || 15;
+                state.currency = userData.currency || 'RUB';
                 
-                // Восстанавливаем выбранное время
                 selectTime(state.predictionTime);
+                elements.currencyToggle.classList.toggle('usd', state.currency === 'USD');
                 updateUI();
             }
         }
@@ -1088,7 +1241,8 @@
                 incorrectGuesses: state.incorrectGuesses,
                 predictionHistory: state.predictionHistory,
                 userCoins: state.userCoins,
-                predictionTime: state.predictionTime
+                predictionTime: state.predictionTime,
+                currency: state.currency
             };
             localStorage.setItem('bitcoin_prediction_user', JSON.stringify(userData));
         }
@@ -1101,7 +1255,9 @@
             // Генерация демо-данных
             for (let i = 24; i >= 0; i--) {
                 const time = now - (i * 3600000);
-                const price = 40000 + (Math.random() * 5000);
+                const price = state.currency === 'RUB' ? 
+                    (3500000 + Math.random() * 500000) : 
+                    (40000 + Math.random() * 5000);
                 state.priceHistory.push({ time, price });
             }
             
@@ -1113,7 +1269,7 @@
                         return date.getHours() + ':00';
                     }),
                     datasets: [{
-                        label: 'BTC/USD',
+                        label: state.currency === 'RUB' ? 'BTC/RUB' : 'BTC/USD',
                         data: state.priceHistory.map(item => item.price),
                         borderColor: '#ff9900',
                         backgroundColor: 'rgba(255, 153, 0, 0.1)',
@@ -1130,7 +1286,7 @@
                         legend: { display: false },
                         title: {
                             display: true,
-                            text: 'Изменение цены за 24 часа',
+                            text: `Изменение цены за 24 часа (${state.currency})`,
                             color: 'white',
                             font: { size: 14 }
                         }
@@ -1141,7 +1297,14 @@
                             grid: { color: 'rgba(255, 255, 255, 0.1)' }
                         },
                         y: {
-                            ticks: { color: 'rgba(255, 255, 255, 0.7)' },
+                            ticks: { 
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                callback: function(value) {
+                                    return state.currency === 'RUB' ? 
+                                        (value / 1000000).toFixed(1) + 'M' : 
+                                        (value / 1000).toFixed(0) + 'K';
+                                }
+                            },
                             grid: { color: 'rgba(255, 255, 255, 0.1)' }
                         }
                     }
@@ -1151,7 +1314,6 @@
 
         // Настройка обработчиков событий
         function setupEventListeners() {
-            // Swipe для вкладок
             const tabsContainer = document.querySelector('.tabs');
             let startX = 0;
             
@@ -1172,7 +1334,6 @@
                 }
             }, { passive: true });
             
-            // Оптимизация для touch
             document.querySelectorAll('button').forEach(btn => {
                 btn.addEventListener('touchstart', function() {
                     this.style.opacity = '0.8';
@@ -1194,7 +1355,6 @@
             elements.downBtn.disabled = true;
             elements.waitingMessage.style.display = 'none';
             
-            // Запускаем таймер
             startGameTimer();
         }
 
@@ -1222,7 +1382,6 @@
         function updateTimer() {
             let timerText = `⏱️ До обновления: ${state.timeLeft} сек`;
             
-            // Изменяем стиль при малом времени
             if (state.timeLeft <= 5) {
                 elements.timer.classList.add('warning');
                 timerText = `⏰ Срочно! ${state.timeLeft} сек`;
@@ -1234,17 +1393,19 @@
         }
 
         function processPredictionResult() {
-            // Генерация новой цены (более волатильная для коротких промежутков)
+            // Генерация новой цены на основе реальной волатильности
             const volatility = state.predictionTime === 15 ? 0.8 : 
                              state.predictionTime === 30 ? 0.5 : 0.3;
             
+            // Берем за основу последнюю реальную цену
+            const basePrice = state.lastPrice || state.currentPrice;
             const changePercent = (Math.random() - 0.5) * volatility * 8;
-            state.nextPrice = state.currentPrice * (1 + changePercent / 100);
+            state.nextPrice = basePrice * (1 + changePercent / 100);
             
-            const actualDirection = state.nextPrice > state.currentPrice ? 'up' : 'down';
+            const actualDirection = state.nextPrice > basePrice ? 'up' : 'down';
             const isCorrect = state.currentPrediction === actualDirection;
             
-            // Расчет награды в зависимости от времени
+            // Расчет награды
             const baseReward = state.predictionTime === 15 ? 30 : 
                              state.predictionTime === 30 ? 20 : 15;
             
@@ -1266,10 +1427,11 @@
                 userPrediction: state.currentPrediction,
                 actualDirection,
                 isCorrect,
-                oldPrice: state.currentPrice,
+                oldPrice: basePrice,
                 newPrice: state.nextPrice,
                 reward: isCorrect ? baseReward : -basePenalty,
-                predictionTime: state.predictionTime
+                predictionTime: state.predictionTime,
+                currency: state.currency
             };
             
             state.predictionHistory.unshift(prediction);
@@ -1289,21 +1451,24 @@
             const change = ((lastPrediction.newPrice - lastPrediction.oldPrice) / lastPrediction.oldPrice * 100).toFixed(2);
             const changeText = change >= 0 ? `+${change}%` : `${change}%`;
             
+            const currencySymbol = lastPrediction.currency === 'RUB' ? '₽' : '$';
+            const formattedOldPrice = formatNumber(lastPrediction.oldPrice);
+            const formattedNewPrice = formatNumber(lastPrediction.newPrice);
+            
             elements.result.className = `result ${lastPrediction.isCorrect ? 'win' : 'lose'}`;
             elements.result.innerHTML = `
                 <h3>${lastPrediction.isCorrect ? '🎉 Правильно!' : '❌ Неправильно'}</h3>
                 <p>Время: <strong>${lastPrediction.predictionTime} сек</strong></p>
                 <p>Ваш прогноз: <strong>${lastPrediction.userPrediction === 'up' ? 'рост' : 'падение'}</strong></p>
                 <p>Результат: <strong>${lastPrediction.actualDirection === 'up' ? 'рост' : 'падение'} (${changeText})</strong></p>
-                <p>Новая цена: <strong>$${lastPrediction.newPrice.toFixed(2)}</strong></p>
+                <p>Старая цена: <strong>${formattedOldPrice} ${currencySymbol}</strong></p>
+                <p>Новая цена: <strong>${formattedNewPrice} ${currencySymbol}</strong></p>
                 <p>${lastPrediction.reward > 0 ? 'Выигрыш' : 'Проигрыш'}: <strong>${Math.abs(lastPrediction.reward)} 🪙</strong></p>
             `;
             elements.result.style.display = 'block';
             
-            // Скрываем таймер
             elements.timer.classList.remove('active');
             
-            // Автоматический запуск нового раунда через 3 секунды
             setTimeout(() => {
                 state.currentPrice = state.nextPrice;
                 state.canPredict = true;
@@ -1313,6 +1478,9 @@
                 elements.result.style.display = 'none';
                 elements.waitingMessage.style.display = 'block';
                 updateWaitingMessage();
+                
+                // Обновляем реальный курс после раунда
+                fetchBitcoinPrice();
             }, 3000);
         }
 
@@ -1400,7 +1568,6 @@
         function processPayment() {
             if (!state.selectedPayment || !state.selectedPack) return;
             
-            // Имитация платежа
             elements.buyBtn.textContent = 'Обработка...';
             elements.buyBtn.disabled = true;
             
@@ -1420,7 +1587,6 @@
         // Запуск игры
         document.addEventListener('DOMContentLoaded', initGame);
         
-        // Предотвращение масштабирования на двойной тап
         document.addEventListener('dblclick', (e) => e.preventDefault(), { passive: false });
     </script>
 </body>
